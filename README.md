@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/title.png" alt="CurriculoCAU" width="240"/>
+  <img src="assets/title.png" alt="CurriculoCAU" width="640"/>
 
   [![License](https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square)](LICENSE)
   [![Stars](https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square)](https://github.com/pontojasko/curriculocau/stargazers)
