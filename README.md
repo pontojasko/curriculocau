@@ -1,21 +1,17 @@
-<div align="center">
-  <img src="assets/title.png" alt="CurriculoCAU" width="640"/>
+# <img src="assets/title.png" alt="CurriculoCAU" width="540"/>
 
-  [![License](https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square)](LICENSE)
-  [![Stars](https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square)](https://github.com/pontojasko/curriculocau/stargazers)
-  [![Issues](https://img.shields.io/github/issues/pontojasko/curriculocau?style=flat-square)](https://github.com/pontojasko/curriculocau/issues)
+[![License](https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](LICENSE)
+[![Stars](https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](https://github.com/pontojasko/curriculocau/stargazers)
+[![Issues](https://img.shields.io/github/issues/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](https://github.com/pontojasko/curriculocau/issues)
 
-  **Have you ever found yourself dreading the tedious process of manually tailoring your resume for every job application?**
+> **[SISTEMA]** Engine local de automação CDP para busca, raspagem stealth e otimização em lote de currículos LaTeX via modelos LLM.
 
-  Automatically search, scrape, and optimize your LaTeX resumes using AI and stealth CDP automation.
+[`[ dependências ]`](#prerequisites) • [`[ instalação ]`](#installation) • [`[ como usar ]`](#usage) • [`[ desenvolvimento ]`](#development)
 
-  [Prerequisites](#prerequisites) • [Installation](#installation) • [Usage](#usage)
+---
 
-  <br />
-  <img src="assets/demo.gif" alt="Curriculo-CAU running in browser" width="720" />
-  <br />
-  <em>Demo — automatic stealth scraping, batch processing and AI-driven LaTeX generation</em>
-</div>
+![Demonstração](assets/demo.gif)
+*Sessão ativa — busca integrada com pesquisa booleana, raspagem stealth via Obscura e compilação LaTeX local.*
 
 ---
 
