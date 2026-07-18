@@ -2,6 +2,8 @@
 
 Currículo-CAU is an automated, AI-powered system that analyzes job descriptions, scrapes listings stealthily, and generates highly tailored, professional LaTeX resumes dynamically.
 
+![Demonstração do Currículo-CAU](assets/demo.gif)
+
 ## Features
 
 - **Stealth Job Scraping:** Uses Obscura headless browser via CDP (Chrome DevTools Protocol) to scrape job listings (e.g., LinkedIn) while bypassing anti-bot detection without relying on heavy Chromium installations.
