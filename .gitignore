@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+*.pdf
+*.aux
+*.log
+*.out
+temp_*/
+venv/
+node_modules/
+backend/bin/
+vagas_otimizadas/

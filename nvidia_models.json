@@ -1,0 +1,836 @@
+[
+    {
+        "title": "nemotron-3-embed-1b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-3-embed-1b",
+        "description": ""
+    },
+    {
+        "title": "inkling",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/thinkingmachines/inkling",
+        "description": ""
+    },
+    {
+        "title": "laguna-xs-2.1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/poolside/laguna-xs-2.1",
+        "description": ""
+    },
+    {
+        "title": "glm-5.2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/z-ai/glm-5.2",
+        "description": ""
+    },
+    {
+        "title": "qwen-image-edit-nvpcb-ovsl2sl",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/qwen-image-edit-nvpcb-ovsl2sl",
+        "description": ""
+    },
+    {
+        "title": "nemotron-ocr-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-ocr-v2",
+        "description": ""
+    },
+    {
+        "title": "minimax-m3",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/minimaxai/minimax-m3",
+        "description": ""
+    },
+    {
+        "title": "diffusiongemma-26b-a4b-it",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/google/diffusiongemma-26b-a4b-it",
+        "description": ""
+    },
+    {
+        "title": "nemotron-3-ultra-550b-a55b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-3-ultra-550b-a55b",
+        "description": ""
+    },
+    {
+        "title": "chatterbox-multilingual-tts",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/resembleai/chatterbox-multilingual-tts",
+        "description": ""
+    },
+    {
+        "title": "nemotron-3.5-content-safety",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-3.5-content-safety",
+        "description": ""
+    },
+    {
+        "title": "cosmos3-nano",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/cosmos3-nano",
+        "description": ""
+    },
+    {
+        "title": "cosmos3-nano-reasoner",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/cosmos3-nano-reasoner",
+        "description": ""
+    },
+    {
+        "title": "step-3.7-flash",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/stepfun-ai/step-3.7-flash",
+        "description": ""
+    },
+    {
+        "title": "kimi-k2.6",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/moonshotai/kimi-k2.6",
+        "description": ""
+    },
+    {
+        "title": "qwen-image",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/qwen/qwen-image",
+        "description": ""
+    },
+    {
+        "title": "qwen-image-edit",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/qwen/qwen-image-edit",
+        "description": ""
+    },
+    {
+        "title": "mistral-medium-3.5-128b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mistralai/mistral-medium-3.5-128b",
+        "description": ""
+    },
+    {
+        "title": "nemotron-3-nano-omni-30b-a3b-reasoning",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+        "description": ""
+    },
+    {
+        "title": "deepseek-v4-flash",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/deepseek-ai/deepseek-v4-flash",
+        "description": ""
+    },
+    {
+        "title": "deepseek-v4-pro",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/deepseek-ai/deepseek-v4-pro",
+        "description": ""
+    },
+    {
+        "title": "Relighting",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/relighting",
+        "description": ""
+    },
+    {
+        "title": "synthetic-video-detector",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/synthetic-video-detector",
+        "description": ""
+    },
+    {
+        "title": "Active Speaker Detection",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/active-speaker-detection",
+        "description": ""
+    },
+    {
+        "title": "LipSync",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/lipsync",
+        "description": ""
+    },
+    {
+        "title": "ising-calibration-1-35b-a3b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/ising-calibration-1-35b-a3b",
+        "description": ""
+    },
+    {
+        "title": "minimax-m2.7",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/minimaxai/minimax-m2.7",
+        "description": ""
+    },
+    {
+        "title": "gemma-4-31b-it",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/google/gemma-4-31b-it",
+        "description": ""
+    },
+    {
+        "title": "llama-nemotron-rerank-vl-1b-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-nemotron-rerank-vl-1b-v2",
+        "description": ""
+    },
+    {
+        "title": "mistral-small-4-119b-2603",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mistralai/mistral-small-4-119b-2603",
+        "description": ""
+    },
+    {
+        "title": "nemotron-voicechat",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-voicechat",
+        "description": ""
+    },
+    {
+        "title": "nemotron-asr-streaming",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-asr-streaming",
+        "description": ""
+    },
+    {
+        "title": "flux.2-klein-4b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/black-forest-labs/flux_2-klein-4b",
+        "description": ""
+    },
+    {
+        "title": "nemotron-ocr-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-ocr-v1",
+        "description": ""
+    },
+    {
+        "title": "nemotron-3-super-120b-a12b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-3-super-120b-a12b",
+        "description": ""
+    },
+    {
+        "title": "llama-nemotron-rerank-1b-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-nemotron-rerank-1b-v2",
+        "description": ""
+    },
+    {
+        "title": "qwen3.5-122b-a10b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/qwen/qwen3.5-122b-a10b",
+        "description": ""
+    },
+    {
+        "title": "nemotron-table-structure-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-table-structure-v1",
+        "description": ""
+    },
+    {
+        "title": "nemotron-page-elements-v3",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-page-elements-v3",
+        "description": ""
+    },
+    {
+        "title": "nemotron-graphic-elements-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-graphic-elements-v1",
+        "description": ""
+    },
+    {
+        "title": "llama-nemotron-embed-1b-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-nemotron-embed-1b-v2",
+        "description": ""
+    },
+    {
+        "title": "gliner-pii",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/gliner-pii",
+        "description": ""
+    },
+    {
+        "title": "cosmos-transfer2.5-2b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/cosmos-transfer2_5-2b",
+        "description": ""
+    },
+    {
+        "title": "qwen3.5-397b-a17b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/qwen/qwen3.5-397b-a17b",
+        "description": ""
+    },
+    {
+        "title": "llama-nemotron-embed-vl-1b-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-nemotron-embed-vl-1b-v2",
+        "description": ""
+    },
+    {
+        "title": "step-3.5-flash",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/stepfun-ai/step-3.5-flash",
+        "description": ""
+    },
+    {
+        "title": "cosmos-reason2-8b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/cosmos-reason2-8b",
+        "description": ""
+    },
+    {
+        "title": "nemotron-3-nano-30b-a3b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-3-nano-30b-a3b",
+        "description": ""
+    },
+    {
+        "title": "riva-translate-4b-instruct-v1_1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/riva-translate-4b-instruct-v1_1",
+        "description": ""
+    },
+    {
+        "title": "mistral-large-3-675b-instruct-2512",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mistralai/mistral-large-3-675b-instruct-2512",
+        "description": ""
+    },
+    {
+        "title": "ministral-14b-instruct-2512",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mistralai/ministral-14b-instruct-2512",
+        "description": ""
+    },
+    {
+        "title": "streampetr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/streampetr",
+        "description": ""
+    },
+    {
+        "title": "nemotron-parse",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-parse",
+        "description": ""
+    },
+    {
+        "title": "nemotron-nano-12b-v2-vl",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-nano-12b-v2-vl",
+        "description": ""
+    },
+    {
+        "title": "llama-3.1-nemotron-safety-guard-8b-v3",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-3_1-nemotron-safety-guard-8b-v3",
+        "description": ""
+    },
+    {
+        "title": "openfold3",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/openfold/openfold3",
+        "description": ""
+    },
+    {
+        "title": "parakeet-ctc-0.6b-zh-tw",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-ctc-0_6b-zh-tw",
+        "description": ""
+    },
+    {
+        "title": "qwen3-next-80b-a3b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/qwen/qwen3-next-80b-a3b-instruct",
+        "description": ""
+    },
+    {
+        "title": "parakeet-ctc-0.6b-zh-cn",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-ctc-0_6b-zh-cn",
+        "description": ""
+    },
+    {
+        "title": "parakeet-ctc-0.6b-es",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-ctc-0_6b-es",
+        "description": ""
+    },
+    {
+        "title": "parakeet-ctc-0.6b-vi",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-ctc-0_6b-vi",
+        "description": ""
+    },
+    {
+        "title": "seed-oss-36b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/bytedance/seed-oss-36b-instruct",
+        "description": ""
+    },
+    {
+        "title": "TRELLIS",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/microsoft/trellis",
+        "description": ""
+    },
+    {
+        "title": "nvidia-nemotron-nano-9b-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nvidia-nemotron-nano-9b-v2",
+        "description": ""
+    },
+    {
+        "title": "stable-diffusion-3.5-large",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/stabilityai/stable-diffusion-3_5-large",
+        "description": ""
+    },
+    {
+        "title": "FLUX.1-Kontext-dev",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/black-forest-labs/flux_1-kontext-dev",
+        "description": ""
+    },
+    {
+        "title": "gpt-oss-20b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/openai/gpt-oss-20b",
+        "description": ""
+    },
+    {
+        "title": "gpt-oss-120b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/openai/gpt-oss-120b",
+        "description": ""
+    },
+    {
+        "title": "parakeet-tdt-0.6b-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-tdt-0_6b-v2",
+        "description": ""
+    },
+    {
+        "title": "llama-3.3-nemotron-super-49b-v1.5",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-3_3-nemotron-super-49b-v1_5",
+        "description": ""
+    },
+    {
+        "title": "sarvam-m",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/sarvamai/sarvam-m",
+        "description": ""
+    },
+    {
+        "title": "nemoretriever-ocr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemoretriever-ocr",
+        "description": ""
+    },
+    {
+        "title": "llama-guard-4-12b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-guard-4-12b",
+        "description": ""
+    },
+    {
+        "title": "riva-translate-1.6b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/riva-translate-1_6b",
+        "description": ""
+    },
+    {
+        "title": "gemma-3n-e4b-it",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/google/gemma-3n-e4b-it",
+        "description": ""
+    },
+    {
+        "title": "gemma-3n-e2b-it",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/google/gemma-3n-e2b-it",
+        "description": ""
+    },
+    {
+        "title": "cosmos-transfer1-7b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/cosmos-transfer1-7b",
+        "description": ""
+    },
+    {
+        "title": "Background Noise Removal",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/bnr",
+        "description": ""
+    },
+    {
+        "title": "mistral-nemotron",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mistralai/mistral-nemotron",
+        "description": ""
+    },
+    {
+        "title": "Boltz-2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mit/boltz2",
+        "description": ""
+    },
+    {
+        "title": "llama-3.1-nemotron-nano-vl-8b-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+        "description": ""
+    },
+    {
+        "title": "magpie-tts-zeroshot",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/magpie-tts-zeroshot",
+        "description": ""
+    },
+    {
+        "title": "FLUX.1-schnell",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/black-forest-labs/flux_1-schnell",
+        "description": ""
+    },
+    {
+        "title": "parakeet-1.1b-rnnt-multilingual-asr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-1_1b-rnnt-multilingual-asr",
+        "description": ""
+    },
+    {
+        "title": "FLUX.1-dev",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/black-forest-labs/flux_1-dev",
+        "description": ""
+    },
+    {
+        "title": "llama-4-maverick-17b-128e-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-4-maverick-17b-128e-instruct",
+        "description": ""
+    },
+    {
+        "title": "sparsedrive",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/sparsedrive",
+        "description": ""
+    },
+    {
+        "title": "bevformer",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/bevformer",
+        "description": ""
+    },
+    {
+        "title": "llama-3.3-nemotron-super-49b-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-3_3-nemotron-super-49b-v1",
+        "description": ""
+    },
+    {
+        "title": "llama-3.1-nemotron-nano-8b-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-3_1-nemotron-nano-8b-v1",
+        "description": ""
+    },
+    {
+        "title": "magpie-tts-multilingual",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/magpie-tts-multilingual",
+        "description": ""
+    },
+    {
+        "title": "nv-embedcode-7b-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nv-embedcode-7b-v1",
+        "description": ""
+    },
+    {
+        "title": "nemoretriever-page-elements-v2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemoretriever-page-elements-v2",
+        "description": ""
+    },
+    {
+        "title": "msa-search",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/colabfold/msa-search",
+        "description": ""
+    },
+    {
+        "title": "openfold2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/openfold/openfold2",
+        "description": ""
+    },
+    {
+        "title": "nemoretriever-parse",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemoretriever-parse",
+        "description": ""
+    },
+    {
+        "title": "evo2-40b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/arc/evo2-40b",
+        "description": ""
+    },
+    {
+        "title": "whisper-large-v3",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/openai/whisper-large-v3",
+        "description": ""
+    },
+    {
+        "title": "canary-1b-asr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/canary-1b-asr",
+        "description": ""
+    },
+    {
+        "title": "llama-3.1-nemoguard-8b-topic-control",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-3_1-nemoguard-8b-topic-control",
+        "description": ""
+    },
+    {
+        "title": "nemoguard-jailbreak-detect",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemoguard-jailbreak-detect",
+        "description": ""
+    },
+    {
+        "title": "llama-3.1-nemoguard-8b-content-safety",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/llama-3_1-nemoguard-8b-content-safety",
+        "description": ""
+    },
+    {
+        "title": "genmol",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/genmol-generate",
+        "description": ""
+    },
+    {
+        "title": "llama-3.3-70b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-3_3-70b-instruct",
+        "description": ""
+    },
+    {
+        "title": "nv-yolox-page-elements-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nv-yolox-page-elements-v1",
+        "description": ""
+    },
+    {
+        "title": "paddleocr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/baidu/paddleocr",
+        "description": ""
+    },
+    {
+        "title": "conformer-ctc-asr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/conformer-ctc-asr",
+        "description": ""
+    },
+    {
+        "title": "fourcastnet",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/fourcastnet",
+        "description": ""
+    },
+    {
+        "title": "Studio Voice",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/studiovoice",
+        "description": ""
+    },
+    {
+        "title": "llama-3.2-3b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-3.2-3b-instruct",
+        "description": ""
+    },
+    {
+        "title": "llama-3.2-11b-vision-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-3.2-11b-vision-instruct",
+        "description": ""
+    },
+    {
+        "title": "llama-3.2-90b-vision-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-3.2-90b-vision-instruct",
+        "description": ""
+    },
+    {
+        "title": "llama-3.2-1b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-3.2-1b-instruct",
+        "description": ""
+    },
+    {
+        "title": "dracarys-llama-3.1-70b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/abacusai/dracarys-llama-3_1-70b-instruct",
+        "description": ""
+    },
+    {
+        "title": "alphafold2-multimer",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/deepmind/alphafold2-multimer",
+        "description": ""
+    },
+    {
+        "title": "esm2-650m",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/esm2-650m",
+        "description": ""
+    },
+    {
+        "title": "alphafold2",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/deepmind/alphafold2",
+        "description": ""
+    },
+    {
+        "title": "nemotron-mini-4b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nemotron-mini-4b-instruct",
+        "description": ""
+    },
+    {
+        "title": "megatron-1b-nmt",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/megatron-1b-nmt",
+        "description": ""
+    },
+    {
+        "title": "parakeet-ctc-1.1b-asr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-ctc-1_1b-asr",
+        "description": ""
+    },
+    {
+        "title": "parakeet-ctc-0.6b-asr",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/parakeet-ctc-0_6b-asr",
+        "description": ""
+    },
+    {
+        "title": "proteinmpnn",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/ipd/proteinmpnn",
+        "description": ""
+    },
+    {
+        "title": "gemma-2-2b-it",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/google/gemma-2-2b-it",
+        "description": ""
+    },
+    {
+        "title": "eyecontact",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/eyecontact",
+        "description": ""
+    },
+    {
+        "title": "llama-3.1-70b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-3_1-70b-instruct",
+        "description": ""
+    },
+    {
+        "title": "llama-3.1-8b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/llama-3_1-8b-instruct",
+        "description": ""
+    },
+    {
+        "title": "nv-embedqa-e5-v5",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nv-embedqa-e5-v5",
+        "description": ""
+    },
+    {
+        "title": "nv-embed-v1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nv-embed-v1",
+        "description": ""
+    },
+    {
+        "title": "solar-10.7b-instruct",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/upstage/solar-10_7b-instruct",
+        "description": ""
+    },
+    {
+        "title": "bge-m3",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/baai/bge-m3",
+        "description": ""
+    },
+    {
+        "title": "rfdiffusion",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/ipd/rfdiffusion",
+        "description": ""
+    },
+    {
+        "title": "paligemma",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/google/google-paligemma",
+        "description": ""
+    },
+    {
+        "title": "rerank-qa-mistral-4b",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/rerank-qa-mistral-4b",
+        "description": ""
+    },
+    {
+        "title": "vista-3d",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/vista-3d",
+        "description": ""
+    },
+    {
+        "title": "molmim",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/molmim-generate",
+        "description": ""
+    },
+    {
+        "title": "esmfold",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/meta/esmfold",
+        "description": ""
+    },
+    {
+        "title": "diffdock",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mit/diffdock",
+        "description": ""
+    },
+    {
+        "title": "mixtral-8x7b-instruct-v0.1",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/mistralai/mixtral-8x7b-instruct",
+        "description": ""
+    },
+    {
+        "title": "cuopt",
+        "tag": "H3",
+        "link": "https://build.nvidia.com/nvidia/nvidia-cuopt",
+        "description": ""
+    }
+]

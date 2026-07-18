@@ -1,0 +1,72 @@
+\documentclass{resume} % Use the custom resume.cls style
+\usepackage[left=0.4in,top=0.4in,right=0.4in,bottom=0.4in]{geometry} % Document margins
+\usepackage[usenames,dvipsnames]{xcolor}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,urlcolor=MidnightBlue} % Configures hyperref since it is already loaded by resume.cls
+\newcommand{\tab}[1]{\hspace{.2667\textwidth}\rlap{#1}}
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\name{HEITOR GOMES DIAS JASKO} % Your name
+\address{Palmares Paulista, SP | +55 (17) 99670-2090}
+\address{\href{https://www.linkedin.com/in/heitor-gomes-dias-jasko-9694b8273}{linkedin} \href{mailto:heitor@jasko.dev}{heitor@jasko.dev} \ \href{https://www.jasko.dev}{portfolio}} %
+\begin{document}
+%----------------------------------------------------------------------------------------
+%	OBJECTIVE
+%----------------------------------------------------------------------------------------
+\begin{rSection}{OBJETIVO}
+Estágio em Desenvolvimento de Software. Backend em \textbf{Java/Spring Boot} e frontend em \textbf{React/Next.js}, com vivência em infraestrutura própria (\textbf{Docker, CI/CD, cloud}) e integração de \textbf{IA (RAG)} a produtos.
+\end{rSection}
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+\begin{rSection}{FORMAÇÃO}
+\textbf{Análise e Desenvolvimento de Sistemas}, Instituto Federal de São Paulo \hfill {Conclusão: 2028}\\
+\textbf{Técnico em Desenvolvimento de Sistemas}, Etec Elias Nechar \hfill {Conclusão: 2024}
+\end{rSection}
+%----------------------------------------------------------------------------------------
+% TECHINICAL STRENGTHS 
+%----------------------------------------------------------------------------------------
+\begin{rSection}{HABILIDADES}
+\begin{tabular}{ @{} >{\bfseries}l @{\hspace{6ex}} p{5.8in} }
+Desenvolvimento & Java (Spring Boot, JPA, Security), API REST, React, Next.js, TypeScript \\
+Banco de Dados & PostgreSQL, SQL, Modelagem de Dados \\
+IA Aplicada & Integração de LLMs, RAG (Retrieval-Augmented Generation), Prompt Engineering \\
+DevOps \& CI/CD & Docker, Nginx, GitHub Actions, Pipelines de Deploy Automatizado, Git/GitHub \\
+Infraestrutura & Linux, Oracle Cloud (OCI), Cloudflare, Portainer, Netdata \\
+Ferramentas & VS Code, Postman, Google Workspace, Office \\
+Idiomas & Inglês (Intermediário) \\
+\end{tabular}
+\end{rSection}
+%----------------------------------------------------------------------------------------
+%	WORK EXPERIENCE SECTION
+%----------------------------------------------------------------------------------------
+\begin{rSection}{EXPERIÊNCIA}
+\textbf{Suporte técnico em software de gerenciamento empresarial} \hfill Até março, 2026\\
+Solução Sistemas \hfill \textit{Catanduva, SP}
+ \begin{itemize}
+    \itemsep -5pt {} 
+    \item Diagnostiquei erros e \textbf{corrigi} inconsistências em bancos de dados por meio de consultas \textbf{SQL}, além de extrair relatórios para clientes.
+    \item Gerenciei atualizações no ambiente do cliente, garantindo estabilidade e continuidade das novas versões.
+    \item Solucionei problemas (troubleshooting) em processos fiscais e regras de negócio.
+    \item Validei processos de compilação e build, assegurando a integridade dos executáveis antes da distribuição.
+    \item \textbf{Identifiquei} documentação técnica dispersa em arquivos soltos em servidor SMB, \textbf{otimizei e migrei} o conteúdo markdown para uma documentação em Vite (React); \textbf{implementei} um assistente de \textbf{IA com RAG} para consulta direta pela equipe.
+\end{itemize}
+\textbf{Suporte técnico em software de gerenciamento empresarial} \hfill Até setembro, 2025\\
+Visualsoft Brasil \hfill \textit{Catanduva, SP}
+ \begin{itemize}
+    \itemsep -5pt {} 
+    \item Diagnostiquei e resolvi incidentes técnicos via helpdesk, cumprindo prazos de atendimento (\textbf{SLA}).
+    \item Analisei erros na emissão de \textbf{NF-e/NFC-e} (XML) e dei suporte a rotinas de banco de dados e controle de estoque.
+    \item \textbf{Desenvolvi} um script em \textbf{Python} que automatizou a instalação e ativação do sistema legado, processo antes manual e repetitivo, reduzindo-o a uma única execução.
+ \end{itemize}
+\end{rSection}
+%----------------------------------------------------------------------------------------
+%	PROJECTS SECTION
+%----------------------------------------------------------------------------------------
+\begin{rSection}{PROJETOS}
+\begin{itemize}
+    \itemsep -5pt {}
+    \item \textbf{Benius} (\href{https://benius.jasko.dev}{benius.jasko.dev}) — Rede social anônima estilo Twitter; \textbf{desenvolvi} backend \textbf{Java}/\textbf{PostgreSQL} e frontend em \textbf{Next.js/React}.
+    \item \textbf{Tasty} (\href{https://tasty.jasko.dev}{tasty.jasko.dev}) — Simulador de terminal web em Java, com autenticação segura e chat assíncrono integrado a IA.
+    \item \textbf{Infraestrutura própria} — \textbf{Projetei} e mantenho servidor Oracle Cloud (OCI) com Docker, Nginx e Cloudflare hospedando as aplicações acima; \textbf{implementei CI/CD} via GitHub Actions (deploy automático a cada push na main, estilo Vercel).
+\end{itemize}
+\end{rSection}
+\end{document}
