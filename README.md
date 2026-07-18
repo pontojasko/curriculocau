@@ -1,8 +1,23 @@
-# Currículo-CAU (Curriculum Analyzer & Upgrader)
+<div align="center">
+  <img src="assets/title.png" alt="CurriculoCAU" width="240"/>
 
-Currículo-CAU is an automated, AI-powered system that analyzes job descriptions, scrapes listings stealthily, and generates highly tailored, professional LaTeX resumes dynamically.
+  [![License](https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square)](LICENSE)
+  [![Stars](https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square)](https://github.com/pontojasko/curriculocau/stargazers)
+  [![Issues](https://img.shields.io/github/issues/pontojasko/curriculocau?style=flat-square)](https://github.com/pontojasko/curriculocau/issues)
 
-![Demonstração do Currículo-CAU](assets/demo.gif)
+  **Have you ever found yourself dreading the tedious process of manually tailoring your resume for every job application?**
+
+  Automatically search, scrape, and optimize your LaTeX resumes using AI and stealth CDP automation.
+
+  [Prerequisites](#prerequisites) • [Installation](#installation) • [Usage](#usage)
+
+  <br />
+  <img src="assets/demo.gif" alt="Curriculo-CAU running in browser" width="720" />
+  <br />
+  <em>Demo — automatic stealth scraping, batch processing and AI-driven LaTeX generation</em>
+</div>
+
+---
 
 ## Features
 
