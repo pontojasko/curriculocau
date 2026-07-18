@@ -1,21 +1,18 @@
 <div align="center">
   <img src="assets/title.png" alt="CurriculoCAU" width="640"/>
-  
-   <b>local CDP automation engine for LaTeX resume optimization</b> 
-
-  [![License](https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](LICENSE)
-  [![Stars](https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](https://github.com/pontojasko/curriculocau/stargazers)
-  [![Issues](https://img.shields.io/github/issues/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](https://github.com/pontojasko/curriculocau/issues)
-
-
+  <br/>
+  <b>local CDP automation engine for LaTeX resume optimization</b>
+  <br/><br/>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921" alt="License"/></a>
+  <a href="https://github.com/pontojasko/curriculocau/stargazers"><img src="https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921" alt="Stars"/></a>
+  <a href="https://github.com/pontojasko/curriculocau/issues"><img src="https://img.shields.io/github/issues/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921" alt="Issues"/></a>
+  <br/><br/>
   <img src="assets/demo.gif" alt="Curriculo-CAU running in browser" width="720" />
-  <br />
-  <em>Demo — automatic stealth scraping, batch processing and AI-driven LaTeX generation</em>
+  <br/>
+  <em>Demo</em>
 </div>
 
 ---
-
-> 
 
 ```
 [ engine ]     stealth job scraping via headless CDP
@@ -23,7 +20,7 @@
 [ output ]     targeted, high-match PDF resumes
 ```
 
-`[ prerequisites ](#prerequisites)` • `[ installation ](#installation)` • `[ usage ](#usage)`
+[`prerequisites`](#prerequisites) • [`installation`](#installation) • [`usage`](#usage)
 
 ---
 
@@ -108,4 +105,9 @@ If you wish to modify the Gruvbox Svelte frontend:
 
 ## License
 
- GNU AFFERO GENERAL PUBLIC LICENSE
+GNU AFFERO GENERAL PUBLIC LICENSE
+
+## Acknowledgments
+
+- Frontend designed adhering to strict aesthetic and opinionated guidelines (Gruvbox).
+- Built with FastAPI, SvelteKit, and Obscura.
