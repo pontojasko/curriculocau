@@ -35,8 +35,19 @@ exit /b %_EXIT_CODE%
         exit /b 1
     )
 
-    REM Passo 1: Ambiente Virtual
-    echo [1/4] Verificando ambiente virtual...
+    REM Passo 1: Configurar arquivo .env
+    echo [1/5] Verificando arquivo .env...
+    if not exist ".env" (
+        if exist ".env.example" (
+            echo       Criando arquivo .env a partir de .env.example...
+            copy .env.example .env >NUL
+        ) else (
+            echo       AVISO: .env e .env.example nao encontrados!
+        )
+    )
+
+    REM Passo 2: Ambiente Virtual
+    echo [2/5] Verificando ambiente virtual...
     if not exist "venv" (
         echo       Criando ambiente virtual venv...
         python -m venv venv
@@ -46,17 +57,17 @@ exit /b %_EXIT_CODE%
         )
     )
 
-    REM Passo 2: Dependencias
-    echo [2/4] Ativando ambiente e verificando dependencias...
+    REM Passo 3: Dependencias
+    echo [3/5] Ativando ambiente e verificando dependencias...
     call venv\Scripts\activate.bat || (echo ERROR: Falha ao ativar venv. 1>&2 & exit /b 1)
     python -m pip install -q -r requirements.txt || (echo ERROR: Falha ao instalar dependencias. 1>&2 & exit /b 1)
 
-    REM Passo 3: Obscura
-    echo [3/4] Baixando/Verificando Obscura headless browser...
+    REM Passo 4: Obscura
+    echo [4/5] Baixando/Verificando Obscura headless browser...
     python backend\setup_obscura.py || (echo ERROR: Falha na configuracao do Obscura. 1>&2 & exit /b 1)
 
-    REM Passo 4: Iniciando Servicos
-    echo [4/4] Iniciando Obscura e a aplicacao web...
+    REM Passo 5: Iniciando Servicos
+    echo [5/5] Iniciando Obscura e a aplicacao web...
     
     REM Matar instancias antigas do obscura se existirem
     taskkill /F /IM obscura.exe >NUL 2>&1
