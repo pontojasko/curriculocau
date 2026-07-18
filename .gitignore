@@ -9,4 +9,7 @@ temp_*/
 venv/
 node_modules/
 backend/bin/
+backend/bin_tmp/
 vagas_otimizadas/
+*.exe
+
