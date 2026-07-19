@@ -7,11 +7,30 @@ import json
 CDP_URL = os.environ.get("OBSCURA_CDP_URL", "ws://127.0.0.1:9223")
 
 async def scrape_job_url(url: str):
+    # Normalize LinkedIn URLs to use www.linkedin.com to match cookies scope
+    import re
+    if "linkedin.com/jobs" in url:
+        url = re.sub(r'https://[^.]+\.linkedin\.com', 'https://www.linkedin.com', url)
+
     async with async_playwright() as p:
         try:
             # Connect to Obscura CDP
             browser = await p.chromium.connect_over_cdp(CDP_URL)
             context = await browser.new_context()
+            
+            # Load and inject cookies from linkedin_state.json if it exists
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            state_path = os.path.join(base_dir, "linkedin_state.json")
+            if os.path.exists(state_path):
+                try:
+                    with open(state_path, 'r', encoding='utf-8') as f:
+                        state = json.load(f)
+                    cookies = state.get("cookies", [])
+                    if cookies:
+                        await context.add_cookies(cookies)
+                except Exception:
+                    pass
+            
             page = await context.new_page()
             
             # Navigate to the URL
@@ -24,7 +43,8 @@ async def scrape_job_url(url: str):
             content = await page.content()
             title = await page.title()
             
-            await browser.close()
+            await page.close()
+            await context.close()
         except Exception as e:
             return {"error": str(e)}
         
@@ -56,33 +76,54 @@ async def scrape_job_url(url: str):
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         clean_text = "\n".join(lines)
             
-        # Detect apply type
+        # Detect apply type and platform
         apply_type = "external"
         apply_platform = "other"
         
-        # Look for buttons or links indicating Easy Apply
-        apply_btn = soup.find(class_=lambda x: x and "jobs-apply-button" in x)
-        if apply_btn:
-            apply_type = "easy_apply"
+        # If the input URL itself points directly to a platform
+        url_lower = url.lower()
+        if "inhire.app" in url_lower or "inhire" in url_lower:
+            apply_type = "external"
+            apply_platform = "inhire"
+        elif "gupy.io" in url_lower or "gupy" in url_lower:
+            apply_type = "external"
+            apply_platform = "gupy"
         else:
-            for el in soup.find_all(['button', 'a']):
-                text = el.get_text(strip=True).lower()
-                if "candidatura simplificada" in text or "easy apply" in text:
-                    apply_type = "easy_apply"
-                    break
-                elif text == "candidatar-se" or text == "apply":
-                    apply_type = "external"
-                    if el.name == 'a':
-                        href = el.get("href", "").lower()
-                        if "inhire" in href:
-                            apply_platform = "inhire"
-                    break
-
-        if apply_type == "external":
+            # Check for Easy Apply indicators on LinkedIn
+            has_easy_apply_class = soup.find(class_=lambda x: x and "jobs-apply-button" in x) is not None
             lower_content = content.lower()
-            if "candidatura simplificada" in lower_content or "easy apply" in lower_content:
+            has_easy_apply_text = "candidatura simplificada" in lower_content or "easy apply" in lower_content
+            
+            if has_easy_apply_class or has_easy_apply_text:
                 apply_type = "easy_apply"
+            else:
+                # It's an external apply. Let's find where it redirects by analyzing links on the page.
+                import urllib.parse
+                external_url = None
                 
+                for el in soup.find_all('a', href=True):
+                    href = el['href']
+                    if "safety/go/?url=" in href:
+                        try:
+                            parsed = urllib.parse.urlparse(href)
+                            qs = urllib.parse.parse_qs(parsed.query)
+                            target_urls = qs.get("url", [])
+                            if target_urls:
+                                external_url = target_urls[0]
+                                break
+                        except Exception:
+                            pass
+                    elif any(domain in href.lower() for domain in ["inhire.app", "inhire", "gupy.io", "gupy", "greenhouse.io", "lever.co"]):
+                        external_url = href
+                        break
+                        
+                if external_url:
+                    external_url_lower = external_url.lower()
+                    if "inhire" in external_url_lower:
+                        apply_platform = "inhire"
+                    elif "gupy" in external_url_lower:
+                        apply_platform = "gupy"
+                        
         return {
             "title": title,
             "description": clean_text,
