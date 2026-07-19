@@ -115,6 +115,10 @@ async def process_batch_jobs_task(jobs_to_process: list, model: str):
     
     for job in jobs_to_process:
         job_id = job["id"]
+        # Check if the state was cleared or reset concurrently
+        if BATCH_STATE.get("status") != "running" or "jobs" not in BATCH_STATE or job_id not in BATCH_STATE["jobs"]:
+            break
+            
         BATCH_STATE["jobs"][job_id]["status"] = "scraping"
         BATCH_STATE["logs"] += f"\n>>> Processando vaga: {job['title']} na {job['company']}\n"
         BATCH_STATE["logs"] += "[SCRAPING] Extraindo informações via Obscura CDP...\n"
@@ -123,6 +127,10 @@ async def process_batch_jobs_task(jobs_to_process: list, model: str):
             url = job["url"]
             scrape_result = await scrape_job_url(url)
             
+            # Check after async yield
+            if BATCH_STATE.get("status") != "running" or "jobs" not in BATCH_STATE or job_id not in BATCH_STATE["jobs"]:
+                break
+                
             if "error" in scrape_result:
                 BATCH_STATE["jobs"][job_id]["status"] = "failed"
                 BATCH_STATE["jobs"][job_id]["error"] = f"Erro ao extrair vaga: {scrape_result['error']}"
@@ -141,10 +149,13 @@ async def process_batch_jobs_task(jobs_to_process: list, model: str):
                     try:
                         event_data = json.loads(sse_event[6:].strip())
                         if event_data.get("type") == "stream":
-                            BATCH_STATE["logs"] += event_data.get("message", "")
+                            # Check state still valid before appending logs
+                            if BATCH_STATE.get("status") == "running":
+                                BATCH_STATE["logs"] += event_data.get("message", "")
                         else:
                             msg_type = event_data.get("type", "info").upper()
-                            BATCH_STATE["logs"] += f"\n[{msg_type}] {event_data.get('message', '')}\n"
+                            if BATCH_STATE.get("status") == "running":
+                                BATCH_STATE["logs"] += f"\n[{msg_type}] {event_data.get('message', '')}\n"
                             
                         if event_data.get("type") == "success":
                             pdf_path = event_data.get("message")
@@ -153,6 +164,10 @@ async def process_batch_jobs_task(jobs_to_process: list, model: str):
                     except:
                         pass
                         
+            # Check after pipeline yield
+            if BATCH_STATE.get("status") != "running" or "jobs" not in BATCH_STATE or job_id not in BATCH_STATE["jobs"]:
+                break
+                
             if pdf_path and os.path.exists(pdf_path):
                 target_dir = os.path.join(BASE_DIR, "vagas_otimizadas")
                 os.makedirs(target_dir, exist_ok=True)
@@ -172,18 +187,22 @@ async def process_batch_jobs_task(jobs_to_process: list, model: str):
                 BATCH_STATE["logs"] += f"[ERRO GERANDO PDF] {BATCH_STATE['jobs'][job_id]['error']}\n"
                 
         except Exception as e:
-            BATCH_STATE["jobs"][job_id]["status"] = "failed"
-            BATCH_STATE["jobs"][job_id]["error"] = str(e)
-            BATCH_STATE["logs"] += f"[FATAL ERRO] {str(e)}\n"
+            if "jobs" in BATCH_STATE and job_id in BATCH_STATE["jobs"]:
+                BATCH_STATE["jobs"][job_id]["status"] = "failed"
+                BATCH_STATE["jobs"][job_id]["error"] = str(e)
+            if "logs" in BATCH_STATE:
+                BATCH_STATE["logs"] += f"[FATAL ERRO] {str(e)}\n"
             
         # Random sleep between 6 and 12 seconds to mimic human and avoid rate limits
         if job != jobs_to_process[-1]:
             sleep_time = random.uniform(6, 12)
-            BATCH_STATE["logs"] += f"\n[SISTEMA] Aguardando {sleep_time:.1f}s antes da próxima vaga para evitar bloqueios...\n"
+            if BATCH_STATE.get("status") == "running":
+                BATCH_STATE["logs"] += f"\n[SISTEMA] Aguardando {sleep_time:.1f}s antes da próxima vaga para evitar bloqueios...\n"
             await asyncio.sleep(sleep_time)
             
-    BATCH_STATE["status"] = "completed"
-    BATCH_STATE["logs"] += "\n[SISTEMA] Processamento em lote finalizado!\n"
+    if BATCH_STATE.get("status") == "running":
+        BATCH_STATE["status"] = "completed"
+        BATCH_STATE["logs"] += "\n[SISTEMA] Processamento em lote finalizado!\n"
 
 @app.post("/api/batch-process")
 async def batch_process(req: BatchProcessRequest, background_tasks: BackgroundTasks):
@@ -220,6 +239,10 @@ async def download_pdf(path: str):
 
 @app.delete("/api/clear-cache")
 async def clear_cache():
+    global BATCH_STATE
+    if BATCH_STATE.get("status") == "running":
+        return {"error": "Cannot clear cache while a batch process is running"}
+        
     cache_path = os.path.join(BASE_DIR, "vagas_otimizadas", "processed_jobs.json")
     if os.path.exists(cache_path):
         try:
@@ -227,7 +250,6 @@ async def clear_cache():
         except Exception as e:
             return {"error": f"Failed to delete cache file: {str(e)}"}
             
-    global BATCH_STATE
     BATCH_STATE = {
         "status": "idle",
         "jobs": {},
