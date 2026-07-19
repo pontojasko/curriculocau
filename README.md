@@ -1,24 +1,33 @@
-# <img src="assets/title.png" alt="CurriculoCAU" width="540"/>
-
-[![License](https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](https://github.com/pontojasko/curriculocau/stargazers)
-[![Issues](https://img.shields.io/github/issues/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921)](https://github.com/pontojasko/curriculocau/issues)
-
-> **[SISTEMA]** Engine local de automação CDP para busca, raspagem stealth e otimização em lote de currículos LaTeX via modelos LLM.
-
-[`[ dependências ]`](#prerequisites) • [`[ instalação ]`](#installation) • [`[ como usar ]`](#usage) • [`[ desenvolvimento ]`](#development)
+<div align="center">
+  <img src="assets/title.png" alt="CurriculoCAU" width="640"/>
+  <br/>
+  <b>local CDP automation engine for LaTeX resume optimization</b>
+  <br/><br/>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921" alt="License"/></a>
+  <a href="https://github.com/pontojasko/curriculocau/stargazers"><img src="https://img.shields.io/github/stars/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921" alt="Stars"/></a>
+  <a href="https://github.com/pontojasko/curriculocau/issues"><img src="https://img.shields.io/github/issues/pontojasko/curriculocau?style=flat-square&labelColor=282828&color=d79921" alt="Issues"/></a>
+  <br/><br/>
+  <img src="assets/demo.gif" alt="Curriculo-CAU running in browser" width="720" />
+  <br/>
+  <em>Demo</em>
+</div>
 
 ---
 
-![Demonstração](assets/demo.gif)
-*Sessão ativa — busca integrada com pesquisa booleana, raspagem stealth via Obscura e compilação LaTeX local.*
+```
+[ engine ]     stealth job scraping via headless CDP
+[ pipeline ]   batch search → AI tailoring → LaTeX compile
+[ output ]     targeted, high-match PDF resumes
+```
+
+[`prerequisites`](#prerequisites) • [`installation`](#installation) • [`usage`](#usage)
 
 ---
 
 ## Features
 
 - **Stealth Job Scraping:** Uses Obscura headless browser via CDP (Chrome DevTools Protocol) to scrape job listings (e.g., LinkedIn) while bypassing anti-bot detection without relying on heavy Chromium installations.
-- **Batch Processing Mode:** 
+- **Batch Processing Mode:**
   - Search multiple jobs at once using keywords and locations.
   - **YouTube/SoundCloud-style Tagging:** Visual tag elements for both Keywords and Negative Keywords (Banidas) with easy click-to-remove capability.
   - **Dynamic Suggestions:** Curated tech & corporate keyword lists with inline chips and a reload (`⟳`) trigger to rotate suggestions on-the-fly.
@@ -33,6 +42,7 @@
 ## Architecture
 
 The project is structured into two main components:
+
 - **Backend (`/backend`)**: Built with Python and FastAPI. Orchestrates the pipeline, manages background tasks for batch processing, and interfaces with the LLM and the Obscura CDP scraper.
 - **Frontend (`/frontend-svelte`)**: Built with SvelteKit. Pre-compiled and statically served by FastAPI. Features a reactive UI for both Single Job and Batch Job modes.
 
@@ -49,27 +59,32 @@ The project is structured into two main components:
    git clone <repository-url>
    cd aicurriculo
    ```
-
 2. **Environment Configuration:**
    Create a `.env` file in the root directory with your API credentials (e.g., NVIDIA NIM or OpenAI keys).
 
 ## Usage
 
-The system is designed to be zero-friction. 
+The system is designed to be zero-friction.
 
 ### Windows
+
 Double-click `iniciar.bat` or run it via terminal:
+
 ```bash
 iniciar.bat
 ```
+
 The script will automatically:
+
 - Create a Python virtual environment (`venv`).
 - Install backend dependencies from `requirements.txt`.
 - Download and set up the Obscura headless browser in stealth mode.
 - Start the FastAPI backend and serve the application on `http://127.0.0.1:8000`.
 
 ### Linux/macOS
+
 Run the shell script equivalent:
+
 ```bash
 ./iniciar.sh
 ```
@@ -77,6 +92,7 @@ Run the shell script equivalent:
 ## Development
 
 If you wish to modify the Gruvbox Svelte frontend:
+
 1. Navigate to the frontend directory:
    ```bash
    cd frontend-svelte
@@ -92,8 +108,10 @@ If you wish to modify the Gruvbox Svelte frontend:
    ```
 
 ## License
-Apache License 2.0
+
+GNU AFFERO GENERAL PUBLIC LICENSE
 
 ## Acknowledgments
+
 - Frontend designed adhering to strict aesthetic and opinionated guidelines (Gruvbox).
 - Built with FastAPI, SvelteKit, and Obscura.
