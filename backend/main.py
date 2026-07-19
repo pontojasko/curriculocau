@@ -137,6 +137,19 @@ async def process_batch_jobs_task(jobs_to_process: list, model: str):
                 BATCH_STATE["logs"] += f"[ERRO] {scrape_result['error']}\n"
                 continue
                 
+            apply_type = scrape_result.get("apply_type", "external")
+            apply_platform = scrape_result.get("apply_platform", "other")
+            
+            if apply_type == "external" and apply_platform != "inhire":
+                BATCH_STATE["jobs"][job_id]["status"] = "skipped"
+                BATCH_STATE["jobs"][job_id]["error"] = "Vaga externa (ignorada)"
+                BATCH_STATE["logs"] += f"[PULADO] Vaga externa ignorada (nem inhire nem candidatura simplificada).\n"
+                continue
+            elif apply_type == "external" and apply_platform == "inhire":
+                BATCH_STATE["logs"] += f"[INFO] Vaga externa InHire detectada. Gerando currículo (automação futura).\n"
+            else:
+                BATCH_STATE["logs"] += f"[INFO] Vaga Candidatura Simplificada detectada.\n"
+                
             job_text = f"{scrape_result.get('title', '')}\n\n{scrape_result.get('description', '')}"
             BATCH_STATE["jobs"][job_id]["status"] = "generating"
             BATCH_STATE["logs"] += "[EXTRAÇÃO] Sucesso! Iniciando geração do PDF otimizado...\n"

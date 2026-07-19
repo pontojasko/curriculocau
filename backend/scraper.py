@@ -56,9 +56,38 @@ async def scrape_job_url(url: str):
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         clean_text = "\n".join(lines)
             
+        # Detect apply type
+        apply_type = "external"
+        apply_platform = "other"
+        
+        # Look for buttons or links indicating Easy Apply
+        apply_btn = soup.find(class_=lambda x: x and "jobs-apply-button" in x)
+        if apply_btn:
+            apply_type = "easy_apply"
+        else:
+            for el in soup.find_all(['button', 'a']):
+                text = el.get_text(strip=True).lower()
+                if "candidatura simplificada" in text or "easy apply" in text:
+                    apply_type = "easy_apply"
+                    break
+                elif text == "candidatar-se" or text == "apply":
+                    apply_type = "external"
+                    if el.name == 'a':
+                        href = el.get("href", "").lower()
+                        if "inhire" in href:
+                            apply_platform = "inhire"
+                    break
+
+        if apply_type == "external":
+            lower_content = content.lower()
+            if "candidatura simplificada" in lower_content or "easy apply" in lower_content:
+                apply_type = "easy_apply"
+                
         return {
             "title": title,
-            "description": clean_text
+            "description": clean_text,
+            "apply_type": apply_type,
+            "apply_platform": apply_platform
         }
 
 async def _internal_search_posts(keywords, processed_ids, p):

@@ -783,13 +783,13 @@
 								<tr class="border-b border-gb-bg-soft hover:bg-gb-bg-soft">
 									<td class="p-3">
 										<span class="px-2 py-1 text-[9px] uppercase tracking-widest border
-											{statusJob.status === 'completed' ? 'border-gb-green text-gb-green' :
-											 statusJob.status === 'ignored' ? 'border-gb-gray text-gb-gray' :
+											 {statusJob.status === 'completed' ? 'border-gb-green text-gb-green' :
+											 statusJob.status === 'skipped' ? 'border-gb-gray text-gb-gray' :
 											 statusJob.status === 'failed' ? 'border-gb-red text-gb-red' :
 											 statusJob.status === 'scraping' || statusJob.status === 'generating' ? 'border-gb-yellow text-gb-yellow' :
 											 'border-gb-gray text-gb-gray'}"
 										>
-											{statusJob.status === 'ignored' ? 'SKIPPED' : statusJob.status === 'scraping' || statusJob.status === 'generating' ? 'BUILDING' : statusJob.status}
+											{statusJob.status === 'skipped' ? 'SKIPPED' : statusJob.status === 'scraping' || statusJob.status === 'generating' ? 'BUILDING' : statusJob.status}
 										</span>
 									</td>
 									<td class="p-3">

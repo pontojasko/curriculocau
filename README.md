@@ -35,9 +35,11 @@
   - **Cache Management:** Built-in clear cache capability (`DELETE /api/clear-cache`) to purge previously processed job IDs and start clean batch runs.
   - Built-in **Boolean Search** automatically injected for Remote jobs (`AND (Remoto OR Remote OR "Home Office")`) and localized `Brasil` -> `Brazil` mapping.
   - Processes multiple selected jobs asynchronously with randomized delays (6-12s) to prevent rate limits and IP bans.
-- **AI-Powered Tailoring:** Integrates with OpenAI-compatible APIs (like NVIDIA NIM) to restructure your resume context into a targeted, high-match application.
-- **LaTeX Compilation:** Generates high-quality PDF resumes using `tectonic` seamlessly in the background.
-- **Gruvbox UI:** A premium, retro-terminal Svelte frontend featuring real-time diagnostic consoles, aesthetic physical-style toggle switches, and strict design guidelines.
+  - **Smart Job Type Detection:** Automatically categorizes jobs into "Easy Apply" (Candidatura Simplificada), "External", and "InHire". Skips unsupported external applications to save resources while queueing supported platforms for processing.
+  - **Thread-Safe State Management:** Robust concurrency safeguards when modifying the global `BATCH_STATE` to prevent race conditions during execution and cache clearing.
+- **AI-Powered Tailoring:** Integrates with OpenAI-compatible APIs (like NVIDIA NIM) to restructure your resume context into a targeted, high-match application. Enforces strict zero-leak policies to guarantee target company names are never cited in the generated curriculum.
+- **LaTeX Compilation:** Generates high-quality PDF resumes seamlessly in the background. The setup script now fully automates the downloading of the `tectonic` binary engine natively—no external installations required.
+- **Gruvbox UI:** A premium, retro-terminal Svelte frontend featuring real-time diagnostic consoles, aesthetic physical-style toggle switches, hyperlinked jobs in the pipeline orchestrator, and strict design guidelines.
 
 ## Architecture
 
