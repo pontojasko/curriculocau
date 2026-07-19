@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-
+	
 	let currentMode = $state<'single' | 'batch'>('single');
 
 	// Single Mode State
@@ -13,24 +13,87 @@
 	let pdfPath = $state('');
 	let models = $state<any[]>([]);
 	let selectedModel = $state('');
+	let scrapedJobUrl = $state<string | null>(null);
+	let scrapedApplyType = $state<string | null>(null);
+	let awaitingConfirmation = $state(false);
+	let confirmationSessionId = $state('');
 
 	let consoleElement: HTMLElement | undefined = $state();
 
 	// Batch Mode State
-	let batchKeywords = $state('');
-	let batchLocation = $state('Brasil');
 	let isSearching = $state(false);
+	let keywordTags = $state<string[]>([]);
+	let currentKeyword = $state('');
+	let negativeTags = $state<string[]>([]);
+	let currentNegative = $state('');
+	// batchNegativeKeywords replaced by negativeTags
+	let batchLocation = $state('Brasil');
+	let remoteOnly = $state(true);
 	let batchJobs = $state<any[]>([]);
 	let selectedBatchJobs = $state<Set<string>>(new Set());
 	let isBatchRunning = $state(false);
 	let batchStatusData = $state<any>(null);
 	let batchInterval: any;
-	let remoteOnly = $state(false);
+	let singleConsoleElement: HTMLElement | undefined = $state();
+	let batchConsoleElement: HTMLElement | undefined = $state();
+
+	// Pools of suggestions
+	const keywordPool = [
+		'Desenvolvedor', 'React', 'Python', 'Node', 'Java', 'TypeScript', 'Svelte', 
+		'Vue', 'Angular', 'Go', 'Rust', 'Ruby', 'PHP', 'C#', 'C++', 'Docker', 
+		'Kubernetes', 'AWS', 'Azure', 'SQL', 'NoSQL', 'DevOps', 'Frontend', 'Backend', 
+		'Fullstack', 'Mobile', 'Flutter', 'React Native', 'Data Science', 'Machine Learning',
+		'Elixir', 'Django', 'Flask', 'Spring Boot', 'Laravel', 'Next.js', 'NestJS', 'GraphQL',
+		'APIs', 'Microserviços', 'CSS', 'Tailwind', 'PostgreSQL', 'MongoDB', 'Redis', 'Linux'
+	];
+	const negativePool = [
+		'Senior', 'Pleno', 'Estágio', 'Junior', 'Presencial', 'Híbrido', 'CLT', 'PJ', 
+		'Temporário', 'Voluntário', 'Gerente', 'Diretor', 'Coordenador', 'QA', 'Tester', 
+		'Design', 'UX', 'Product Owner', 'Scrum Master', 'Sales', 'Vendas', 'Suporte', 
+		'Atendimento', 'Marketing', 'Finanças', 'Jurídico', 'RH', 'Recruiter', 'Consultor'
+	];
+
+	let displayedKeywords = $state<string[]>(['Desenvolvedor', 'React', 'Python', 'Node']);
+	let displayedNegatives = $state<string[]>(['Senior', 'Pleno', 'Estágio', 'Presencial']);
+
+	function rotateKeywords() {
+		const shuffled = [...keywordPool].sort(() => 0.5 - Math.random());
+		displayedKeywords = shuffled.slice(0, 4);
+	}
+
+	function rotateNegatives() {
+		const shuffled = [...negativePool].sort(() => 0.5 - Math.random());
+		displayedNegatives = shuffled.slice(0, 4);
+	}
+
 
 	$effect(() => {
-		// Auto-scroll the console output
-		if (consoleOutput && consoleElement) {
-			consoleElement.scrollTop = consoleElement.scrollHeight;
+		// Auto-scroll the single console output
+		if (consoleOutput && singleConsoleElement) {
+			singleConsoleElement.scrollTop = singleConsoleElement.scrollHeight;
+		}
+	});
+
+	$effect(() => {
+		// Auto-scroll the batch console output
+		if (batchStatusData?.logs && batchConsoleElement) {
+			batchConsoleElement.scrollTop = batchConsoleElement.scrollHeight;
+		}
+	});
+
+	// Persist changes to localStorage
+	$effect(() => {
+		localStorage.setItem('cau_batch_keywords', JSON.stringify(keywordTags));
+		localStorage.setItem('cau_batch_negative_keywords', JSON.stringify(negativeTags));
+	});
+
+	$effect(() => {
+		localStorage.setItem('cau_remote_only', String(remoteOnly));
+	});
+
+	$effect(() => {
+		if (selectedModel) {
+			localStorage.setItem('cau_selected_model', selectedModel);
 		}
 	});
 
@@ -40,6 +103,10 @@
 		const urlPattern = /^https?:\/\/[^\s]+$/;
 		if (urlPattern.test(text) && !isScraping && !isRunning && currentMode === 'single') {
 			extractJob(text);
+		} else if (scrapedJobUrl && !text.includes(scrapedJobUrl) && !isScraping) {
+			// If user clears the text or replaces it manually, reset the scraped url
+			scrapedJobUrl = null;
+			scrapedApplyType = null;
 		}
 	});
 
@@ -62,6 +129,8 @@
 				const title = data.title ? data.title.trim() : 'Vaga';
 				const desc = data.description ? data.description.trim() : '';
 				jobDescription = `${title}\n\n${desc}`;
+				scrapedJobUrl = url;
+				scrapedApplyType = data.apply_type || null;
 				consoleOutput += `[SUCCESS] Vaga extraída com sucesso! Iniciando análise...\n`;
 				setTimeout(() => { runAnalysis(); }, 100);
 			}
@@ -73,16 +142,35 @@
 	}
 
 	onMount(async () => {
+		// Recover states from localStorage
+		const storedKeys = localStorage.getItem('cau_batch_keywords');
+		if (storedKeys) {
+			try { keywordTags = JSON.parse(storedKeys); }
+			catch { keywordTags = storedKeys.split(' ').filter(Boolean); }
+		}
+		
+		const storedNegKeys = localStorage.getItem('cau_batch_negative_keywords');
+		if (storedNegKeys) {
+			try { negativeTags = JSON.parse(storedNegKeys); }
+			catch { negativeTags = storedNegKeys.split(' ').filter(Boolean); }
+		}
+
+		const cachedRemote = localStorage.getItem('cau_remote_only');
+		if (cachedRemote) remoteOnly = cachedRemote === 'true';
+
 		try {
 			const response = await fetch('/api/models?t=' + new Date().getTime());
 			const data = await response.json();
 			if (data.models && Array.isArray(data.models)) {
 				const modelRanking = [
 					{ id: 'deepseek-ai/deepseek-v4-pro', score: 99 },
+					{ id: 'gemini-1.5-pro', score: 97 },
 					{ id: 'meta/llama-3.3-70b-instruct', score: 96 },
 					{ id: 'mistralai/mistral-large-3-675b-instruct-2512', score: 95 },
 					{ id: 'meta/llama-3.1-70b-instruct', score: 93 },
+					{ id: 'gemini-2.0-flash', score: 92 },
 					{ id: 'meta/llama-3.3-nemotron-super-49b-v1.5', score: 90 },
+					{ id: 'gemini-1.5-flash', score: 89 },
 					{ id: 'deepseek-ai/deepseek-v4-flash', score: 88 },
 					{ id: 'google/gemma-4-31b-it', score: 85 },
 					{ id: 'nvidia/nvidia-nemotron-nano-9b-v2', score: 82 },
@@ -102,14 +190,19 @@
 				});
 
 				models = filteredModels;
-				if (models.length > 0) {
+				
+				const cachedModel = localStorage.getItem('cau_selected_model');
+				if (cachedModel && models.some(m => m.id === cachedModel)) {
+					selectedModel = cachedModel;
+				} else if (models.length > 0) {
 					selectedModel = models[0].id;
 				}
 			}
 		} catch (e) {
 			console.error("Failed to load models", e);
+			const cachedModel = localStorage.getItem('cau_selected_model');
 			models = [{ id: 'meta/llama-3.1-8b-instruct', title: 'llama-3.1-8b-instruct', tag: ' (Default)' }];
-			selectedModel = 'meta/llama-3.1-8b-instruct';
+			selectedModel = cachedModel || 'meta/llama-3.1-8b-instruct';
 		}
 	});
 
@@ -121,6 +214,8 @@
 		matchData = null;
 		pdfReady = false;
 		pdfPath = '';
+		awaitingConfirmation = false;
+		confirmationSessionId = '';
 
 		try {
 			consoleOutput += `[SYSTEM] Initializing analysis engine with model ${selectedModel}...\n`;
@@ -130,7 +225,9 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ 
 					job_description: jobDescription,
-					model: selectedModel
+					model: selectedModel,
+					job_url: scrapedJobUrl,
+					apply_type: scrapedApplyType
 				})
 			});
 
@@ -181,7 +278,15 @@
 							} else if (data.type === 'stream') {
 								consoleOutput += data.message;
 							} else {
-								consoleOutput += `\n[${data.type.toUpperCase()}] ${data.message}\n`;
+								const msg = data.message;
+								if (msg.includes("[ACTION_REQUIRED:")) {
+									const match = msg.match(/\[ACTION_REQUIRED:([^\]]+)\]/);
+									if (match) {
+										confirmationSessionId = match[1];
+										awaitingConfirmation = true;
+									}
+								}
+								consoleOutput += `\n[${data.type.toUpperCase()}] ${msg}\n`;
 							}
 						} catch(e) {}
 					}
@@ -194,27 +299,72 @@
 		}
 	}
 
+	async function confirmApply() {
+		if (!confirmationSessionId) return;
+		awaitingConfirmation = false;
+		consoleOutput += '\n[SYSTEM] Enviando confirmação...\n';
+		try {
+			await fetch(`/api/confirm-apply/${confirmationSessionId}`, { method: 'POST' });
+		} catch(e) {}
+	}
+
 	// Batch Mode Functions
 	async function searchBatchJobs() {
-		if (!batchKeywords.trim()) return;
+		if (keywordTags.length === 0) return;
 		isSearching = true;
+		batchJobs = [];
+		selectedBatchJobs.clear();
+		
 		try {
 			const res = await fetch('/api/search-jobs', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ keywords: batchKeywords, location: batchLocation, remote_only: remoteOnly })
+				body: JSON.stringify({
+					keywords: keywordTags.join(' '),
+					negative_keywords: negativeTags.join(', '),
+					location: batchLocation,
+					remote_only: remoteOnly
+				})
 			});
-			const data = await res.json();
-			if (data.jobs) {
-				batchJobs = data.jobs;
-				selectedBatchJobs = new Set(data.jobs.map((j: any) => j.id));
+			if (!res.body) throw new Error("No response body");
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
+			let buffer = '';
+
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split('\n');
+				buffer = lines.pop() || ''; // Mantém a linha incompleta (se houver) no buffer
+				
+				for (const line of lines) {
+					if (line.trim()) {
+						try {
+							const obj = JSON.parse(line);
+							if (obj.error) {
+								consoleOutput += `\n[ERROR] ${obj.error}\n`;
+							} else {
+								batchJobs = [...batchJobs, obj];
+								const newSet = new Set(selectedBatchJobs);
+								newSet.add(obj.id);
+								selectedBatchJobs = newSet;
+							}
+						} catch (e) {
+							console.error("Falha ao analisar JSON do stream", e);
+						}
+					}
+				}
 			}
-		} catch (e) {
-			console.error(e);
+		} catch (error: any) {
+			consoleOutput += `\n[FATAL] ${error.message || error}\n`;
 		} finally {
 			isSearching = false;
 		}
 	}
+
+	
 
 	function toggleJobSelection(id: string) {
 		const newSet = new Set(selectedBatchJobs);
@@ -262,6 +412,18 @@
 		}, 2000);
 	}
 
+	async function clearCache() {
+		try {
+			await fetch('/api/clear-cache', { method: 'DELETE' });
+			batchJobs = [];
+			selectedBatchJobs = new Set();
+			if (!batchStatusData) batchStatusData = {};
+			batchStatusData.logs = (batchStatusData.logs || '') + "\n[SYSTEM] Cache de vagas limpo. Histórico deletado.\n";
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
 	onDestroy(() => {
 		if (batchInterval) clearInterval(batchInterval);
 	});
@@ -277,7 +439,7 @@
 		<header class="mb-6">
 			<div class="flex justify-between items-start">
 				<div>
-					<h1 class="text-2xl font-display font-bold text-gb-yellow uppercase tracking-wider">curriculo-cau</h1>
+					<h1 class="text-2xl font-sans font-bold text-gb-yellow uppercase tracking-wider">curriculo-cau</h1>
 					<p class="text-gb-gray mt-2 font-mono text-sm">Curriculum Analyzer & Upgrader. Local LaTeX synthesis engine.</p>
 				</div>
 				
@@ -285,13 +447,13 @@
 				<div class="flex bg-gb-bg-soft border border-gb-bg-soft p-1 shrink-0 ml-4">
 					<button 
 						onclick={() => currentMode = 'single'}
-						class="px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors {currentMode === 'single' ? 'bg-gb-yellow text-gb-bg font-bold' : 'text-gb-gray hover:text-gb-fg'}"
+						class="px-4 py-2 font-mono text-xs uppercase tracking-wider  {currentMode === 'single' ? 'bg-gb-yellow text-gb-bg font-bold' : 'text-gb-gray hover:text-gb-fg'}"
 					>
 						[ Single ]
 					</button>
 					<button 
 						onclick={() => currentMode = 'batch'}
-						class="px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors {currentMode === 'batch' ? 'bg-gb-yellow text-gb-bg font-bold' : 'text-gb-gray hover:text-gb-fg'}"
+						class="px-4 py-2 font-mono text-xs uppercase tracking-wider  {currentMode === 'batch' ? 'bg-gb-yellow text-gb-bg font-bold' : 'text-gb-gray hover:text-gb-fg'}"
 					>
 						[ Batch ]
 					</button>
@@ -306,7 +468,7 @@
 				id="model-select"
 				bind:value={selectedModel}
 				disabled={isRunning || isBatchRunning}
-				class="w-full bg-gb-bg-soft border border-gb-bg-soft rounded-none p-3 font-mono text-sm text-gb-fg focus:outline-none focus:border-gb-yellow transition-colors cursor-pointer"
+				class="w-full bg-gb-bg-soft border border-gb-bg-soft rounded-none p-3 font-mono text-sm text-gb-fg focus:outline-none focus:border-gb-yellow  cursor-pointer"
 			>
 				{#each models as model}
 					<option value={model.id}>{model.title}{model.tag}</option>
@@ -316,144 +478,225 @@
 
 		{#if currentMode === 'single'}
 			<!-- SINGLE MODE INPUT -->
-			<div class="flex-1 flex flex-col min-h-0 relative">
-				<label for="job-desc" class="block text-gb-gray font-mono text-xs uppercase tracking-wider mb-2">Job Description / Link</label>
+			<div class="flex-1 flex flex-col min-h-0 border border-gb-bg-soft bg-gb-bg relative mb-4">
+				<div class="p-3 bg-gb-bg-soft border-b border-gb-bg flex justify-between items-center shrink-0">
+					<span class="font-mono text-xs uppercase tracking-wider text-gb-gray">Job Analysis Configuration</span>
+				</div>
 				<textarea 
 					id="job-desc"
 					bind:value={jobDescription}
-					class="flex-1 w-full bg-gb-bg-soft border border-gb-bg-soft p-4 font-mono text-sm focus:outline-none focus:border-gb-yellow resize-none transition-colors"
+					class="flex-1 w-full bg-gb-bg border-0 p-4 font-mono text-sm focus:outline-none resize-none text-gb-fg"
 					placeholder="Paste job description OR job link here..."
 					disabled={isRunning || isScraping}
 				></textarea>
 				{#if isScraping}
-					<div class="absolute inset-0 flex flex-col items-center justify-center bg-gb-bg-soft/80 backdrop-blur-sm z-10">
-						<span class="w-8 h-8 rounded-full border-2 border-gb-yellow border-t-transparent animate-spin mb-4"></span>
-						<p class="text-gb-yellow font-mono text-sm font-bold uppercase tracking-widest animate-pulse">Extracting Job Data...</p>
+					<div class="absolute inset-0 top-[40px] flex flex-col items-center justify-center bg-gb-bg-soft/90 z-10">
+						<div class="px-6 py-3 border border-gb-yellow bg-gb-bg text-gb-yellow font-mono text-xs font-bold uppercase tracking-widest">
+							[ EXTRACTING JOB DATA... ]
+						</div>
 					</div>
 				{/if}
+				<div class="sticky bottom-0 bg-gb-bg-soft border-t border-gb-bg p-3 shrink-0 flex justify-end">
+					<button 
+						onclick={runAnalysis}
+						disabled={isRunning || !jobDescription.trim()}
+						class="px-6 py-2 font-sans font-bold text-gb-bg bg-gb-yellow hover:bg-gb-orange disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-xs cursor-pointer"
+					>
+						{isRunning ? 'Processing...' : 'Run Analysis'}
+					</button>
+				</div>
 			</div>
 
-			<div class="mt-6">
-				<button 
-					onclick={runAnalysis}
-					disabled={isRunning || !jobDescription.trim()}
-					class="w-full py-4 font-display font-bold text-gb-bg bg-gb-yellow hover:bg-gb-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-widest cursor-pointer"
-				>
-					{isRunning ? 'Compiling...' : 'Run Analysis'}
-				</button>
-			</div>
 		{:else}
 			<!-- BATCH MODE INPUT -->
-			<div class="mb-4 flex gap-4">
-				<div class="flex-1">
-					<label for="batch-keywords" class="block text-gb-gray font-mono text-xs uppercase tracking-wider mb-2">Palavras-chave</label>
-					<input 
-						id="batch-keywords"
-						bind:value={batchKeywords}
-						class="w-full bg-gb-bg-soft border border-gb-bg-soft p-3 font-mono text-sm focus:outline-none focus:border-gb-yellow transition-colors text-gb-fg"
-						placeholder="ex: Desenvolvedor Java React"
-						disabled={isSearching || isBatchRunning}
-					/>
+			<div class="flex flex-col gap-0 border border-gb-bg-soft bg-gb-bg mb-4 flex-1 min-h-0">
+				<div class="p-3 bg-gb-bg-soft border-b border-gb-bg flex justify-between items-center shrink-0">
+					<span class="font-mono text-xs uppercase tracking-wider text-gb-gray">Search Criteria</span>
 				</div>
-				<div class="w-1/3">
-					<label for="batch-location" class="block text-gb-gray font-mono text-xs uppercase tracking-wider mb-2">Localização</label>
-					<input 
-						id="batch-location"
-						bind:value={batchLocation}
-						class="w-full bg-gb-bg-soft border border-gb-bg-soft p-3 font-mono text-sm focus:outline-none focus:border-gb-yellow transition-colors text-gb-fg"
-						disabled={isSearching || isBatchRunning}
-					/>
+				<div class="p-6 flex flex-col gap-8 flex-1 overflow-auto">
+					
+					<div class="flex gap-4">
+						<div class="flex-1">
+							<label class="block text-gb-gray font-mono text-[10px] uppercase mb-2">Palavras-chave</label>
+							
+							<div class="w-full bg-gb-bg border border-gb-bg-soft p-2 flex flex-wrap gap-2 focus-within:border-gb-yellow/50 items-center min-h-[42px]">
+								{#each keywordTags as tag, index}
+									<div class="bg-gb-yellow/10 border border-gb-yellow/30 text-gb-yellow/80 text-[10px] font-mono px-2 py-1 flex items-center gap-2 uppercase">
+										<span>{tag}</span>
+										<button onclick={() => keywordTags.splice(index, 1)} class="text-gb-yellow/50 hover:text-gb-yellow font-bold">×</button>
+									</div>
+								{/each}
+								<input 
+									bind:value={currentKeyword}
+									onkeydown={(e) => {
+										if (e.key === 'Enter' && currentKeyword.trim()) {
+											e.preventDefault();
+											if (!keywordTags.includes(currentKeyword.trim())) keywordTags.push(currentKeyword.trim());
+											currentKeyword = '';
+										}
+									}}
+									class="flex-1 min-w-[120px] bg-transparent outline-none font-mono text-xs text-gb-fg/90" 
+									placeholder={keywordTags.length === 0 ? "Type and press Enter" : ""}
+									disabled={isSearching || isBatchRunning} 
+								/>
+							</div>
+							
+							<div class="flex flex-wrap gap-2 mt-3 items-center">
+								{#each displayedKeywords as keyword}
+									<button onclick={() => !keywordTags.includes(keyword) && keywordTags.push(keyword)} class="px-3 py-1 bg-gb-bg-soft border border-gb-bg-soft text-[9px] text-gb-gray hover:border-gb-yellow/30 hover:text-gb-yellow/80 uppercase tracking-widest cursor-pointer">
+										{keyword}
+									</button>
+								{/each}
+								<button onclick={rotateKeywords} class="px-2 py-1 bg-gb-bg border border-gb-bg-soft text-[9px] text-gb-yellow hover:bg-gb-yellow/10 uppercase font-bold cursor-pointer" title="Recarregar sugestões">
+									⟳
+								</button>
+							</div>
+						</div>
+						
+						<div class="w-1/3">
+							<label class="block text-gb-gray font-mono text-[10px] uppercase mb-2">Local</label>
+							<select bind:value={batchLocation} class="w-full bg-gb-bg border border-gb-bg-soft p-2 font-mono text-xs text-gb-fg/90 focus:outline-none focus:border-gb-yellow/50 uppercase h-[42px]" disabled={isSearching || isBatchRunning}>
+								<option value="Brasil">Brasil</option>
+								<option value="São Paulo">São Paulo</option>
+								<option value="Rio de Janeiro">Rio de Janeiro</option>
+								<option value="United States">Estados Unidos</option>
+								<option value="Canada">Canadá</option>
+								<option value="Portugal">Portugal</option>
+								<option value="Europe">Europa</option>
+							</select>
+						</div>
+					</div>
+					
+					<div>
+						<label class="block text-gb-gray font-mono text-[10px] uppercase mb-2">Palavras Banidas (Negras)</label>
+						
+						<div class="w-full bg-gb-bg border border-gb-bg-soft p-2 flex flex-wrap gap-2 focus-within:border-gb-red/50 items-center min-h-[42px]">
+							{#each negativeTags as tag, index}
+								<div class="bg-gb-red/10 border border-gb-red/30 text-gb-red/70 text-[10px] font-mono px-2 py-1 flex items-center gap-2 uppercase">
+									<span>{tag}</span>
+									<button onclick={() => negativeTags.splice(index, 1)} class="text-gb-red/50 hover:text-gb-red font-bold">×</button>
+								</div>
+							{/each}
+							<input 
+								bind:value={currentNegative}
+								onkeydown={(e) => {
+									if (e.key === 'Enter' && currentNegative.trim()) {
+										e.preventDefault();
+										if (!negativeTags.includes(currentNegative.trim())) negativeTags.push(currentNegative.trim());
+										currentNegative = '';
+									}
+								}}
+								class="flex-1 min-w-[120px] bg-transparent outline-none font-mono text-xs text-gb-fg/90" 
+								placeholder={negativeTags.length === 0 ? "Type and press Enter" : ""}
+								disabled={isSearching || isBatchRunning} 
+							/>
+						</div>
+						
+						<div class="flex flex-wrap gap-2 mt-3 items-center">
+							{#each displayedNegatives as negative}
+								<button onclick={() => !negativeTags.includes(negative) && negativeTags.push(negative)} class="px-3 py-1 bg-gb-bg-soft border border-gb-bg-soft text-[9px] text-gb-gray hover:border-gb-red/30 hover:text-gb-red/70 uppercase tracking-widest cursor-pointer">
+									{negative}
+								</button>
+							{/each}
+							<button onclick={rotateNegatives} class="px-2 py-1 bg-gb-bg border border-gb-bg-soft text-[9px] text-gb-red hover:bg-gb-red/10 uppercase font-bold cursor-pointer" title="Recarregar sugestões">
+								⟳
+							</button>
+						</div>
+					</div>
+					
+				</div>
+				
+				<div class="flex items-center justify-between p-4 border-t border-gb-bg-soft bg-gb-bg shrink-0">
+					<button onclick={() => remoteOnly = !remoteOnly} disabled={isSearching || isBatchRunning} class="font-mono text-[10px] uppercase {remoteOnly ? 'text-gb-green/80' : 'text-gb-gray'} cursor-pointer hover:text-gb-fg">
+						[ {remoteOnly ? 'X' : ' '} ] Apenas Remoto
+					</button>
+					<button onclick={searchBatchJobs} disabled={isSearching || isBatchRunning || keywordTags.length === 0} class="px-8 py-3 font-sans font-bold text-gb-bg bg-gb-yellow/80 hover:bg-gb-yellow disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-xs cursor-pointer">
+						{isSearching ? 'Buscando...' : 'Buscar Vagas'}
+					</button>
 				</div>
 			</div>
-
-			<!-- Retro physical toggle for remote-only (Aesthetic risk aligning with frontend-design) -->
-			<div class="mb-4 flex items-center justify-between bg-gb-bg-soft p-3 border border-gb-bg-soft shrink-0">
-				<span class="text-gb-gray font-mono text-xs uppercase tracking-wider">Apenas Vagas Remotas</span>
-				<button 
-					onclick={() => remoteOnly = !remoteOnly}
-					disabled={isSearching || isBatchRunning}
-					class="px-3 py-1.5 font-mono text-xs uppercase border transition-all cursor-pointer {remoteOnly ? 'border-gb-green text-gb-green bg-gb-green/10' : 'border-gb-gray text-gb-gray hover:text-gb-fg'}"
-				>
-					{remoteOnly ? '[ Remoto: Ativo ]' : '[ Remoto: Inativo ]'}
-				</button>
-			</div>
-			
-			<button 
-				onclick={searchBatchJobs}
-				disabled={isSearching || isBatchRunning || !batchKeywords.trim()}
-				class="w-full py-3 mb-6 font-display font-bold text-gb-bg bg-gb-yellow hover:bg-gb-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-widest cursor-pointer"
-			>
-				{isSearching ? 'Buscando...' : 'Buscar Vagas'}
-			</button>
 
 			{#if batchJobs.length > 0}
-				<div class="flex-1 flex flex-col min-h-0 border border-gb-bg-soft bg-gb-bg">
+				<div class="flex-1 flex flex-col min-h-0 border border-gb-bg-soft bg-gb-bg relative">
 					<div class="p-3 bg-gb-bg-soft flex justify-between items-center shrink-0 border-b border-gb-bg">
-						<span class="font-mono text-xs uppercase tracking-wider text-gb-gray">Vagas Encontradas ({batchJobs.length})</span>
-						<span class="font-mono text-xs text-gb-yellow">{selectedBatchJobs.size} selecionadas</span>
+						<span class="font-mono text-xs uppercase tracking-wider text-gb-gray">Queue ({batchJobs.length})</span>
+						<span class="font-mono text-xs text-gb-yellow">{selectedBatchJobs.size} selected</span>
 					</div>
-					<div class="flex-1 overflow-auto p-2">
-						{#each batchJobs as job}
-							<button 
-								onclick={() => toggleJobSelection(job.id)}
-								disabled={isBatchRunning}
-								class="w-full flex items-start text-left p-3 mb-2 border hover:border-gb-yellow transition-colors {selectedBatchJobs.has(job.id) ? 'border-gb-yellow bg-gb-bg-soft' : 'border-gb-bg-soft bg-gb-bg'}"
-							>
-								<div class="mr-4 mt-1 text-gb-yellow font-bold font-mono">
-									{selectedBatchJobs.has(job.id) ? '[X]' : '[ ]'}
-								</div>
-								<div class="flex-1 overflow-hidden">
-									<div class="font-bold text-gb-fg truncate">{job.title}</div>
-									<div class="text-xs text-gb-gray font-mono mt-1 flex justify-between">
-										<span class="truncate pr-2">{job.company}</span>
-										<span class="shrink-0">{job.location}</span>
-									</div>
-								</div>
-							</button>
-						{/each}
+					<div class="flex-1 overflow-auto">
+						<table class="w-full text-left font-mono text-xs">
+							<thead class="sticky top-0 bg-gb-bg-soft text-gb-gray uppercase text-[10px] z-10 border-b border-gb-bg">
+								<tr>
+									<th class="p-2 w-12 text-center">Sel</th>
+									<th class="p-2">Role</th>
+									<th class="p-2 w-32 truncate">Company</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each batchJobs as job}
+									<tr class="border-b border-gb-bg-soft hover:bg-gb-bg-soft cursor-pointer {selectedBatchJobs.has(job.id) ? 'bg-gb-bg-soft' : ''}" onclick={() => toggleJobSelection(job.id)}>
+										<td class="p-2 text-center text-gb-yellow font-bold whitespace-nowrap">
+											{selectedBatchJobs.has(job.id) ? '[X]' : '[ ]'}
+										</td>
+										<td class="p-2 text-gb-fg truncate max-w-[200px]" title={job.title}>{job.title}</td>
+										<td class="p-2 text-gb-gray truncate max-w-[120px]" title={job.company}>{job.company}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
 					</div>
-				</div>
-
-				<div class="mt-6 shrink-0">
-					<button 
-						onclick={startBatchProcess}
-						disabled={isBatchRunning || selectedBatchJobs.size === 0}
-						class="w-full py-4 font-display font-bold text-gb-bg bg-gb-green hover:bg-[#98971a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors uppercase tracking-widest cursor-pointer"
-					>
-						{isBatchRunning ? 'Processando Lote...' : 'Otimizar Vagas Selecionadas'}
-					</button>
+					<div class="sticky bottom-0 bg-gb-bg-soft border-t border-gb-bg p-3 shrink-0 flex justify-between items-center shadow-[0_-10px_20px_rgba(40,40,40,0.8)]">
+						<span class="font-mono text-xs text-gb-gray">{selectedBatchJobs.size} ready for processing</span>
+						<button onclick={startBatchProcess} disabled={isBatchRunning || selectedBatchJobs.size === 0} class="px-6 py-2 font-sans font-bold text-gb-bg bg-gb-green hover:bg-[#98971a] disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-xs cursor-pointer">
+							{isBatchRunning ? 'Processando...' : 'Iniciar Lote'}
+						</button>
+					</div>
 				</div>
 			{/if}
 		{/if}
+
+		<!-- Footer options: Purge History (mocadinha) -->
+		<div class="mt-auto pt-4 border-t border-gb-bg-soft shrink-0 flex justify-end">
+			<button 
+				onclick={clearCache}
+				style="color: #a89984; opacity: 0.5; font-family: monospace; font-size: 10px; background: transparent; border: none; cursor: pointer; "
+				onmouseover={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = '#fb4934'; }}
+				onmouseout={(e) => { e.currentTarget.style.opacity = '0.5'; e.currentTarget.style.color = '#a89984'; }}
+				title="Limpar cache de vagas já processadas"
+			>
+				[ purge history ]
+			</button>
+		</div>
 	</div>
 
 	<!-- Right Pane: Output -->
 	<div class="flex flex-col w-1/2 p-8 overflow-hidden bg-gb-bg/50 relative">
 		{#if currentMode === 'single'}
 			<!-- SINGLE MODE OUTPUT -->
-			<header class="mb-8 flex justify-between items-end shrink-0">
-				<h2 class="text-lg font-display font-bold text-gb-fg uppercase tracking-wider">Diagnostic Console</h2>
-				<div class="flex items-center gap-2">
-					<span class="w-2 h-2 rounded-full {isRunning ? 'bg-gb-orange animate-pulse' : 'bg-gb-green'}"></span>
-					<span class="text-gb-gray font-mono text-xs">{isRunning ? 'EXECUTING' : 'IDLE'}</span>
+			<header class="mb-4 flex justify-between items-center shrink-0 p-4 border border-gb-bg-soft bg-gb-bg">
+				<div>
+					<h2 class="text-sm font-sans font-bold text-gb-fg uppercase tracking-wider">Analysis Orchestration</h2>
+					<p class="font-mono text-[10px] text-gb-gray mt-1">Single Execution Monitoring</p>
+				</div>
+				<div class="flex items-center gap-2 border border-gb-bg-soft px-3 py-1 bg-gb-bg-soft">
+					<span class="w-2 h-2 rounded-full {isRunning ? 'bg-gb-yellow' : 'bg-gb-green'}"></span>
+					<span class="text-gb-fg font-mono text-[10px] uppercase tracking-wider">{isRunning ? 'RUNNING' : 'IDLE'}</span>
 				</div>
 			</header>
 
 			{#if matchData}
-				<div class="mb-6 p-6 border border-gb-bg-soft bg-gb-bg flex flex-col gap-4 shrink-0">
-					<div class="flex items-center justify-between">
-						<h3 class="font-display text-gb-yellow font-bold uppercase tracking-wider">Match Report</h3>
-						<div class="text-3xl font-mono font-bold {matchData.matchScore >= 80 ? 'text-gb-green' : matchData.matchScore >= 50 ? 'text-gb-yellow' : 'text-gb-red'}">
-							{matchData.matchScore}%
-						</div>
+				<div class="mb-4 border border-gb-bg-soft bg-gb-bg flex flex-col shrink-0">
+					<div class="p-3 bg-gb-bg-soft flex items-center justify-between border-b border-gb-bg">
+						<span class="font-mono text-[10px] text-gb-gray uppercase tracking-wider">Match Metrics</span>
+						<span class="font-mono font-bold text-xs {matchData.matchScore >= 80 ? 'text-gb-green' : matchData.matchScore >= 50 ? 'text-gb-yellow' : 'text-gb-red'}">
+							SCORE: {matchData.matchScore}%
+						</span>
 					</div>
-					
 					{#if matchData.gaps && matchData.gaps.length > 0}
-						<div class="mt-4">
-							<h4 class="text-gb-gray text-xs uppercase tracking-wider mb-3">Identified Gaps</h4>
+						<div class="p-4">
+							<span class="text-gb-gray font-mono text-[10px] uppercase block mb-2">Identified Gaps</span>
 							<div class="flex flex-wrap gap-2">
 								{#each matchData.gaps as gap}
-									<span class="px-2 py-1 text-xs font-mono border border-gb-orange text-gb-orange bg-gb-orange/10">
+									<span class="px-2 py-1 text-[10px] font-mono border border-gb-orange text-gb-orange bg-gb-orange/10">
 										{gap.keyword}
 									</span>
 								{/each}
@@ -463,8 +706,12 @@
 				</div>
 			{/if}
 
+			<div class="p-2 bg-gb-bg-soft border border-gb-bg-soft shrink-0 flex justify-between items-center mb-1">
+				<span class="font-mono text-[10px] text-gb-gray uppercase">System Terminal</span>
+			</div>
+			
 			<div 
-				bind:this={consoleElement}
+				bind:this={singleConsoleElement}
 				class="flex-1 overflow-auto bg-gb-bg border border-gb-bg-soft p-4 font-mono text-xs text-gb-gray whitespace-pre-wrap leading-relaxed shadow-inner"
 			>
 				{#if !consoleOutput}
@@ -475,82 +722,110 @@
 			</div>
 
 			{#if pdfReady}
-				<div class="mt-6 shrink-0">
+				<div class="mt-4 shrink-0">
 					<a 
 						href={`/api/download?path=${encodeURIComponent(pdfPath)}`}
 						download="resume.pdf"
-						class="block text-center w-full py-4 font-display font-bold text-gb-bg bg-gb-green hover:bg-[#98971a] transition-colors uppercase tracking-widest cursor-pointer"
+						class="block text-center w-full py-3 font-sans font-bold text-gb-bg bg-gb-green hover:bg-[#98971a] uppercase tracking-widest text-xs cursor-pointer"
 					>
-						Download Generated PDF
+						[ Download PDF Artifact ]
 					</a>
+				</div>
+			{/if}
+
+			{#if awaitingConfirmation}
+				<div class="mt-4 shrink-0 p-4 border border-gb-blue bg-gb-bg-soft flex items-center justify-between">
+					<div class="flex items-center gap-3">
+						<span class="w-2 h-2 rounded-full bg-gb-blue"></span>
+						<div>
+							<span class="block font-sans font-bold text-gb-blue uppercase tracking-widest text-xs">Action Required</span>
+							<span class="text-gb-gray font-mono text-[10px] mt-1 block">Form auto-filled. Send application?</span>
+						</div>
+					</div>
+					<button 
+						onclick={confirmApply}
+						class="px-6 py-2 font-sans font-bold text-gb-bg bg-gb-blue hover:bg-[#458588] uppercase tracking-widest text-xs cursor-pointer"
+					>
+						Confirm
+					</button>
 				</div>
 			{/if}
 
 		{:else}
 			<!-- BATCH MODE OUTPUT -->
-			<header class="mb-8 flex justify-between items-end shrink-0">
-				<h2 class="text-lg font-display font-bold text-gb-fg uppercase tracking-wider">Status do Lote</h2>
-				<div class="flex items-center gap-2">
-					<span class="w-2 h-2 rounded-full {isBatchRunning ? 'bg-gb-orange animate-pulse' : 'bg-gb-green'}"></span>
-					<span class="text-gb-gray font-mono text-xs">{isBatchRunning ? 'PROCESSANDO' : 'OCIOSO'}</span>
+			<header class="mb-4 flex justify-between items-center shrink-0 p-4 border border-gb-bg-soft bg-gb-bg">
+				<div>
+					<h2 class="text-sm font-sans font-bold text-gb-fg uppercase tracking-wider">Pipeline Orchestration</h2>
+					<p class="font-mono text-[10px] text-gb-gray mt-1">Batch Execution Monitoring</p>
+				</div>
+				<div class="flex items-center gap-2 border border-gb-bg-soft px-3 py-1 bg-gb-bg-soft">
+					<span class="w-2 h-2 rounded-full {isBatchRunning ? 'bg-gb-yellow' : 'bg-gb-green'}"></span>
+					<span class="text-gb-fg font-mono text-[10px] uppercase tracking-wider">{isBatchRunning ? 'RUNNING' : 'IDLE'}</span>
 				</div>
 			</header>
 
-			<div class="flex-1 overflow-auto min-h-[40%]">
+			<div class="flex-1 overflow-auto min-h-[40%] bg-gb-bg border border-gb-bg-soft mb-4">
 				{#if !batchStatusData || !batchStatusData.jobs || Object.keys(batchStatusData.jobs).length === 0}
-					<div class="h-full flex items-center justify-center border border-gb-bg-soft border-dashed text-gb-gray font-mono text-sm">
-						Nenhum lote em andamento.
+					<div class="h-full flex items-center justify-center text-gb-gray font-mono text-[10px] uppercase tracking-widest">
+						No active deployments
 					</div>
 				{:else}
-					<div class="flex flex-col gap-4 pr-2">
-						{#each Object.entries(batchStatusData.jobs) as [id, statusJob]: [string, any]}
-							<div class="border border-gb-bg-soft bg-gb-bg p-4 flex flex-col gap-3">
-								<div class="flex justify-between items-start">
-									<div class="font-bold text-gb-fg flex-1 mr-4 break-words">{statusJob.title}</div>
-									
-									<div class="px-2 py-1 text-[10px] font-mono uppercase tracking-wider border shrink-0
-										{statusJob.status === 'completed' ? 'border-gb-green text-gb-green bg-gb-green/10' :
-										 statusJob.status === 'failed' ? 'border-gb-red text-gb-red bg-gb-red/10' :
-										 statusJob.status === 'scraping' ? 'border-gb-orange text-gb-orange bg-gb-orange/10 animate-pulse' :
-										 statusJob.status === 'generating' ? 'border-gb-yellow text-gb-yellow bg-gb-yellow/10 animate-pulse' :
-										 'border-gb-gray text-gb-gray'}"
-									>
-										{statusJob.status}
-									</div>
-								</div>
-								
-								<div class="text-xs text-gb-gray font-mono flex items-center gap-2">
-									<span>{statusJob.company}</span>
-									<span>&bull;</span>
-									<a href={statusJob.url} target="_blank" rel="noopener noreferrer" class="text-gb-blue hover:underline">Ver vaga</a>
-								</div>
-								
-								{#if statusJob.error}
-									<div class="text-xs text-gb-red font-mono bg-gb-red/10 p-2 border border-gb-red/20 break-words whitespace-pre-wrap">
-										[ERROR] {statusJob.error}
-									</div>
-								{/if}
-
-								{#if statusJob.status === 'completed' && statusJob.pdf_path}
-									<div class="mt-2 flex justify-end">
-										<a 
-											href={`/api/download?path=${encodeURIComponent(statusJob.pdf_path)}`}
-											download
-											class="px-4 py-2 text-xs font-mono font-bold text-gb-bg bg-gb-green hover:bg-[#98971a] transition-colors"
+					<table class="w-full text-left font-mono text-xs">
+						<thead class="sticky top-0 bg-gb-bg-soft text-gb-gray uppercase text-[10px] border-b border-gb-bg">
+							<tr>
+								<th class="p-3 w-24">Status</th>
+								<th class="p-3">Job Name</th>
+								<th class="p-3 text-right">Artifact</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each Object.entries(batchStatusData.jobs).filter(([id, j]) => j.status !== 'pending') as [id, statusJob]: [string, any] (id)}
+								<tr class="border-b border-gb-bg-soft hover:bg-gb-bg-soft">
+									<td class="p-3">
+										<span class="px-2 py-1 text-[9px] uppercase tracking-widest border
+											{statusJob.status === 'completed' ? 'border-gb-green text-gb-green' :
+											 statusJob.status === 'ignored' ? 'border-gb-gray text-gb-gray' :
+											 statusJob.status === 'failed' ? 'border-gb-red text-gb-red' :
+											 statusJob.status === 'scraping' || statusJob.status === 'generating' ? 'border-gb-yellow text-gb-yellow' :
+											 'border-gb-gray text-gb-gray'}"
 										>
-											[ Download PDF ]
-										</a>
-									</div>
-								{/if}
-							</div>
-						{/each}
-					</div>
+											{statusJob.status === 'ignored' ? 'SKIPPED' : statusJob.status === 'scraping' || statusJob.status === 'generating' ? 'BUILDING' : statusJob.status}
+										</span>
+									</td>
+									<td class="p-3">
+										<div class="font-bold text-gb-fg truncate max-w-[200px]">
+											<a href={statusJob.url} target="_blank" rel="noopener noreferrer" class="hover:underline hover:text-gb-yellow">
+												{statusJob.title}
+											</a>
+										</div>
+										<div class="text-[10px] text-gb-gray mt-1 truncate">{statusJob.company}</div>
+										{#if statusJob.error}
+											<div class="text-[10px] text-gb-red mt-2 p-2 bg-gb-red/10 border border-gb-red/30 whitespace-pre-wrap">{statusJob.error}</div>
+										{/if}
+									</td>
+									<td class="p-3 text-right align-top">
+										{#if statusJob.status === 'completed' && statusJob.pdf_path}
+											<a href={`/api/download?path=${encodeURIComponent(statusJob.pdf_path)}`} download class="text-[10px] font-bold text-gb-green border border-gb-green px-3 py-1 hover:bg-gb-green hover:text-gb-bg uppercase">
+												[ Download PDF ]
+											</a>
+										{:else}
+											<span class="text-gb-gray opacity-50 text-[10px]">-</span>
+										{/if}
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
 				{/if}
+			</div>
+			
+			<div class="p-2 bg-gb-bg-soft border border-gb-bg-soft shrink-0 flex justify-between items-center mb-1">
+				<span class="font-mono text-[10px] text-gb-gray uppercase">System Terminal</span>
 			</div>
 
 			<!-- BATCH CONSOLE OUTPUT -->
 			<div 
-				bind:this={consoleElement}
+				bind:this={batchConsoleElement}
 				class="mt-6 flex-1 min-h-[30%] overflow-auto bg-gb-bg border border-gb-bg-soft p-4 font-mono text-xs text-gb-gray whitespace-pre-wrap leading-relaxed shadow-inner"
 			>
 				{#if !batchStatusData || !batchStatusData.logs}

@@ -20,6 +20,10 @@
 - **Stealth Job Scraping:** Uses Obscura headless browser via CDP (Chrome DevTools Protocol) to scrape job listings (e.g., LinkedIn) while bypassing anti-bot detection without relying on heavy Chromium installations.
 - **Batch Processing Mode:** 
   - Search multiple jobs at once using keywords and locations.
+  - **YouTube/SoundCloud-style Tagging:** Visual tag elements for both Keywords and Negative Keywords (Banidas) with easy click-to-remove capability.
+  - **Dynamic Suggestions:** Curated tech & corporate keyword lists with inline chips and a reload (`⟳`) trigger to rotate suggestions on-the-fly.
+  - **Real-Time Streaming (NDJSON):** Results populate the Job Queue progressively as they are scraped by the robot, with an artificial delay for visual feedback, and all incoming jobs are auto-selected by default.
+  - **Cache Management:** Built-in clear cache capability (`DELETE /api/clear-cache`) to purge previously processed job IDs and start clean batch runs.
   - Built-in **Boolean Search** automatically injected for Remote jobs (`AND (Remoto OR Remote OR "Home Office")`) and localized `Brasil` -> `Brazil` mapping.
   - Processes multiple selected jobs asynchronously with randomized delays (6-12s) to prevent rate limits and IP bans.
 - **AI-Powered Tailoring:** Integrates with OpenAI-compatible APIs (like NVIDIA NIM) to restructure your resume context into a targeted, high-match application.

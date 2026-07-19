@@ -5,11 +5,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize OpenAI client pointing to NVIDIA's base URL
-client = AsyncOpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=os.environ.get("NVIDIA_API_KEY", "")
-)
+def get_client(model: str) -> AsyncOpenAI:
+    if model.startswith("gemini"):
+        return AsyncOpenAI(
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=os.environ.get("GEMINI_API_KEY", "")
+        )
+    return AsyncOpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=os.environ.get("NVIDIA_API_KEY", "")
+    )
 
 SYSTEM_PROMPT = """Você é um especialista em recrutamento de alto nível e sistemas ATS (Applicant Tracking System), além de ser um expert absoluto em LaTeX.
 Seu objetivo é otimizar o currículo (escrito em LaTeX) para a vaga de emprego fornecida.
@@ -18,7 +23,7 @@ REGRAS ESTRITAS:
 1. Adapte as palavras-chave do currículo para estarem alinhadas com a vaga.
 2. NUNCA quebre a formatação, estrutura ou pacotes do documento LaTeX original. O arquivo class (.cls) deve continuar funcionando perfeitamente.
 3. Se a vaga pedir tecnologias que o candidato pode razoavelmente conhecer com base no seu perfil, ADICIONE as novas tecnologias de forma natural e honesta.
-   - REGRA DE INTEGRIDADE HISTÓRICA: NUNCA altere ou falsifique as tecnologias principais de projetos reais ou experiências profissionais que já estão listados no currículo. O que já está lá deve permanecer verídico.
+   - REGRA DE INTEGRIDADE HISTÓRICA E TECNOLÓGICA: NUNCA altere, substitua ou falsifique as tecnologias principais (linguagens, frameworks, bancos de dados) de projetos reais ou experiências profissionais já listados no currículo. Por exemplo, se um projeto foi feito em Java e PostgreSQL, NÃO mude para Node.js ou qualquer outra tecnologia apenas para agradar a vaga. A stack original (linguagens e ferramentas) de cada projeto DEVE permanecer estritamente idêntica e verídica.
    - NUNCA crie cargos, empresas ou experiências profissionais fictícias na seção de EXPERIÊNCIA.
    - NUNCA invente ou crie projetos fictícios na seção de PROJETOS. Todos os projetos listados devem ser os originais do currículo.
    - Adicione as novas linguagens/frameworks apenas na seção de HABILIDADES (com destaque adequado) se o perfil do candidato demonstrar afinidade com elas. Não invente sites, URLs ou conquistas que não existem.
@@ -111,6 +116,7 @@ async def analyze_job_description(model: str, job_description: str, latex_conten
         {"role": "user", "content": f"Descrição da Vaga:\n{job_description}\n\nCurrículo do Candidato (LaTeX):\n{latex_content}"}
     ]
     
+    client = get_client(model)
     response = await client.chat.completions.create(
         model=model,
         messages=messages,
@@ -154,6 +160,7 @@ async def generate_optimized_resume(model: str, job_description: str, latex_cont
         user_message = f"VAGA DE EMPREGO:\n{job_description}\n\nCÓDIGO LATEX DO CURRÍCULO:\n{latex_content}"
         messages.append({"role": "user", "content": user_message})
 
+    client = get_client(model)
     response = await client.chat.completions.create(
         model=model,
         messages=messages,
@@ -167,3 +174,87 @@ async def generate_optimized_resume(model: str, job_description: str, latex_cont
             delta = chunk.choices[0].delta.content
             if delta:
                 yield delta
+
+EMAIL_SYSTEM_PROMPT = """You are an expert software engineer applying for a job.
+Write a concise, persuasive email body for your job application.
+
+INSTRUCTIONS:
+1. Match the tone of the job description (professional, startup, etc.).
+2. Highlight your key strengths based ONLY on the provided resume summary.
+3. Keep it under 150 words. Recruiters are busy.
+4. Do not invent skills or experiences.
+5. Provide ONLY the email text. No subject line, no markdown blocks, no commentary.
+
+EXAMPLE:
+Prezado(a) Recrutador(a),
+
+Gostaria de submeter meu currículo para a vaga de [Cargo]. Tenho ampla experiência em [Habilidade 1] e [Habilidade 2], o que me permite contribuir rapidamente para os objetivos da sua equipe.
+
+Em anexo, envio meu currículo detalhando minha trajetória. Agradeço desde já pelo tempo e consideração.
+
+Atenciosamente,
+Heitor"""
+
+async def generate_email_body(model: str, job_description: str, job_analysis: str) -> str:
+    """
+    Generates a short, persuasive email body using prompt engineering patterns.
+    """
+    messages = [
+        {"role": "system", "content": EMAIL_SYSTEM_PROMPT},
+        {"role": "user", "content": f"Vaga:\n{job_description}\n\nMeu Resumo Profissional (Analysis):\n{job_analysis}\n\nGere o corpo do e-mail."}
+    ]
+    
+    client = get_client(model)
+    response = await client.chat.completions.create(
+        model=model,
+        messages=messages,
+        temperature=0.4,
+        max_tokens=300
+    )
+    
+    content = response.choices[0].message.content
+    return content.strip() if content else "Prezado(a),\n\nEm anexo meu currículo para a vaga.\n\nAtenciosamente,"
+
+AUTO_APPLY_PROMPT = """Você é o candidato respondendo a um formulário de vaga de emprego.
+Aqui está o seu currículo / perfil base:
+{profile}
+
+A vaga fez a seguinte pergunta no formulário:
+Pergunta: "{question}"
+Tipo de Campo: {input_type}
+Opções Disponíveis (se houver): {options}
+
+REGRAS:
+1. Responda estritamente com o valor a ser preenchido no formulário. NENHUM texto extra.
+2. Se for um número (ex: anos de experiência), retorne APENAS o número. Seja coerente com o perfil (inflando de forma sensata se necessário, ex: de 1 para 2 anos, mas não de 1 para 10).
+3. Se for 'select' ou 'radio', você DEVE retornar exatamente uma das opções disponíveis.
+4. Se a pergunta for sobre proficiência em idiomas, baseie-se no perfil.
+"""
+
+async def answer_application_question(model: str, question: str, input_type: str, profile: str, options: list = None) -> str:
+    opts_str = ", ".join(options) if options else "Nenhuma"
+    prompt = AUTO_APPLY_PROMPT.format(
+        profile=profile,
+        question=question,
+        input_type=input_type,
+        options=opts_str
+    )
+    
+    messages = [{"role": "user", "content": prompt}]
+    
+    try:
+        client = get_client(model)
+        response = await client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=0.3,
+            max_tokens=100
+        )
+        return response.choices[0].message.content.strip()
+    except Exception:
+        # Fallback sensato se a IA falhar
+        if options:
+            return options[0]
+        if input_type == "number":
+            return "2"
+        return "Sim"

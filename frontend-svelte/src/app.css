@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -11,14 +11,19 @@
   --color-gb-orange: #fe8019;
   --color-gb-red: #fb4934;
 
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  transition: none !important;
+  animation: none !important;
 }
 
 body {
   background-color: var(--color-gb-bg);
   color: var(--color-gb-fg);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   margin: 0;
   padding: 0;
   height: 100vh;

@@ -3,6 +3,8 @@ import asyncio
 import re
 from backend.ai_service import generate_optimized_resume, extract_latex, analyze_job_description
 from backend.latex_compiler import compile_latex
+from backend.auto_apply import auto_apply_job
+import os
 
 def get_pdf_page_count(pdf_path: str) -> int:
     try:
@@ -26,7 +28,7 @@ def extract_latex_errors(log_text: str) -> str:
         return "\n".join(non_empty[-8:])
     return "\n".join(errors[:5])
 
-async def generation_pipeline(job_description: str, model: str, base_dir: str, max_retries: int = 3):
+async def generation_pipeline(job_description: str, model: str, base_dir: str, job_url: str = None, apply_type: str = None, max_retries: int = 3):
     """
     Orchestrates the generation and auto-correction loop.
     Yields JSON strings to be sent via SSE.
@@ -109,6 +111,53 @@ async def generation_pipeline(job_description: str, model: str, base_dir: str, m
                 yield format_sse("warning", f"Tentativa {attempt} compilou com sucesso, mas gerou {page_count} páginas (estourou o limite de 1 página).\nSolicitando compactação de layout para a IA...")
                 continue
             yield format_sse("success", pdf_path)
+            
+            # Executa Auto-Apply se for Easy Apply
+            if apply_type == "easy_apply" and job_url:
+                yield format_sse("info", f"\n[AUTO-APPLY] Iniciando robô para candidatar-se na vaga...")
+                
+                q = asyncio.Queue()
+                def log_cb(msg):
+                    q.put_nowait(msg)
+                
+                profile_path = os.path.join(base_dir, "base_curriculo.tex")
+                profile_text = ""
+                if os.path.exists(profile_path):
+                    with open(profile_path, "r", encoding="utf-8") as f:
+                        profile_text = f.read()
+                        
+                import uuid
+                session_id = str(uuid.uuid4())
+                        
+                # Start task
+                apply_task = asyncio.create_task(
+                    auto_apply_job(
+                        job_url=job_url,
+                        resume_path=pdf_path,
+                        model=model,
+                        profile_text=profile_text,
+                        log_callback=log_cb,
+                        require_confirmation=True,
+                        session_id=session_id
+                    )
+                )
+                
+                while not apply_task.done():
+                    try:
+                        msg = await asyncio.wait_for(q.get(), timeout=1.0)
+                        yield format_sse("info", msg)
+                    except asyncio.TimeoutError:
+                        pass
+                        
+                while not q.empty():
+                    yield format_sse("info", q.get_nowait())
+                        
+                success_apply = apply_task.result()
+                if success_apply:
+                    yield format_sse("info", "[AUTO-APPLY] Candidatura realizada com sucesso no LinkedIn!")
+                else:
+                    yield format_sse("info", "[AUTO-APPLY] Não foi possível completar a candidatura automaticamente.")
+                    
             return
         else:
             extracted_errors = extract_latex_errors(log)

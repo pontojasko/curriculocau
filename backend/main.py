@@ -79,13 +79,19 @@ async def scrape_job(req: ScrapeRequest):
 
 class SearchJobsRequest(BaseModel):
     keywords: str
+    negative_keywords: str = ""
     location: str = "Brasil"
     remote_only: bool = False
 
 @app.post("/api/search-jobs")
 async def search_jobs(req: SearchJobsRequest):
     from backend.scraper import search_linkedin_jobs
-    return await search_linkedin_jobs(req.keywords, req.location, req.remote_only)
+    from fastapi.responses import StreamingResponse
+    
+    return StreamingResponse(
+        search_linkedin_jobs(req.keywords, req.negative_keywords, req.location, req.remote_only),
+        media_type="application/x-ndjson"
+    )
 
 class BatchProcessRequest(BaseModel):
     jobs: list
@@ -211,6 +217,23 @@ async def download_pdf(path: str):
         return {"error": "Access denied. Invalid file path."}
         
     return FileResponse(path, filename="resume_optimized.pdf", media_type="application/pdf")
+
+@app.delete("/api/clear-cache")
+async def clear_cache():
+    cache_path = os.path.join(BASE_DIR, "vagas_otimizadas", "processed_jobs.json")
+    if os.path.exists(cache_path):
+        try:
+            os.remove(cache_path)
+        except Exception as e:
+            return {"error": f"Failed to delete cache file: {str(e)}"}
+            
+    global BATCH_STATE
+    BATCH_STATE = {
+        "status": "idle",
+        "jobs": {},
+        "logs": ""
+    }
+    return {"status": "success"}
 
 if __name__ == "__main__":
     import uvicorn
