@@ -39,7 +39,8 @@ REGRAS ESTRITAS:
    - REGRA DE PRIORIZAÇÃO DE ALTO VALOR (HIGH-SIGNAL): Ao resumir ou condensar itens de EXPERIÊNCIA ou PROJETOS para economizar espaço, ordene-os por complexidade técnica e impacto. NUNCA remova ou simplifique conquistas técnicas complexas (ex: integrações complexas, IA/RAG, automações e scripts avançados). Em vez disso, condense e combine impiedosamente tarefas operacionais de rotina e suporte básico (ex: helpdesk, suporte, consultas SQL simples) em menos bullet points.
 8. ADAPTAÇÃO DO OBJETIVO E SENIORIDADE:
    - Adapte o cargo e a senioridade na seção "OBJETIVO" para estarem em total conformidade com o que a vaga exige.
-   - Se a vaga for de nível "Pleno", "Sênior", "Mid-level", etc., remova qualquer menção a "Estágio" ou "Júnior" no objetivo e substitua por termos adequados (ex: "Desenvolvedor de Software Backend", "Engenheiro de Software", etc.), alinhando o objetivo ao patamar profissional da vaga de forma natural."""
+   - Se a vaga for de nível "Pleno", "Sênior", "Mid-level", etc., remova qualquer menção a "Estágio" ou "Júnior" no objetivo e substitua por termos adequados (ex: "Desenvolvedor de Software Backend", "Engenheiro de Software", etc.), alinhando o objetivo ao patamar profissional da vaga de forma natural.
+9. PRIVACIDADE E NEUTRALIDADE DA CONVENIÊNCIA: NUNCA mencione ou cite o nome da empresa contratante (a empresa da vaga) em qualquer seção do currículo (como objetivo, resumo, projetos ou habilidades). O currículo otimizado resultante deve ser neutro e não conter o nome da empresa-alvo para a qual o candidato está se candidatando."""
 
 ANALYZE_SYSTEM_PROMPT = """Você é um especialista em análise de vagas de emprego e matching de candidatos. Sua tarefa é analisar a descrição de uma vaga e extrair informações críticas em relação ao currículo do candidato (fornecido em LaTeX) para otimização futura.
 
